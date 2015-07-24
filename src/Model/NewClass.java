@@ -12,6 +12,5 @@ import java.util.*;
 public class NewClass {
                                 
     String nice = "Sdsd";
-    
-    
+   
 }
