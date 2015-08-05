@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<schemas xmlns='http://xml.netbeans.org/schema/JAXBWizConfig' destdir='build/generated-sources/jaxb' projectName='Chinese_Checkers' version='1.0'>
+	<schema type='-xmlschema' package='generatedClasses' name='chineseCheckerXML'>
+		<xjc-options>
+		</xjc-options>
+		<schema-sources>
+			<schema-source location='xml-resources/jaxb/chineseCheckerXML/chinese_checkers.xsd' origLocation='XML and XSD v1.0/chinese_checkers.xsd'/>
+		</schema-sources>
+		<bindings>
+		</bindings>
+		<catalog/>
+	</schema>
+</schemas>

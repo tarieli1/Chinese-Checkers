@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chinese_checkers xsi:noNamespaceSchemaLocation="chinese_checkers.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    current_player="john">
+    <players>
+        <player type="HUMAN" name="john">
+            <color>GREEN</color>
+        </player>
+        <player type="COMPUTER" name="paul">
+            <color>RED</color>
+        </player>
+    </players>
+    <board>
+        <cell row="1" col="1" color="GREEN"></cell>
+        <cell row="2" col="2" color="GREEN"></cell>
+        <cell row="3" col="1" color="GREEN"></cell>
+        <cell row="3" col="2" color="GREEN"></cell>
+        <cell row="3" col="3" color="GREEN"></cell>
+        <cell row="4" col="1" color="GREEN"></cell>
+        <cell row="4" col="2" color="GREEN"></cell>
+        <cell row="5" col="6" color="GREEN"></cell>
+        <cell row="7" col="6" color="GREEN"></cell>
+        <cell row="8" col="6" color="GREEN"></cell>
+        <cell row="11" col="7" color="RED"></cell>
+        <cell row="13" col="8" color="RED"></cell>
+        <cell row="14" col="1" color="RED"></cell>
+        <cell row="14" col="2" color="RED"></cell>
+        <cell row="15" col="1" color="RED"></cell>
+        <cell row="15" col="2" color="RED"></cell>
+        <cell row="15" col="3" color="RED"></cell>
+        <cell row="16" col="1" color="RED"></cell>
+        <cell row="16" col="2" color="RED"></cell>
+        <cell row="17" col="1" color="RED"></cell>
+    </board>
+</chinese_checkers>

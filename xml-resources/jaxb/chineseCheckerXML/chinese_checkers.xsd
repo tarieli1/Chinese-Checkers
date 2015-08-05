@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    <xs:element name="chinese_checkers">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="players" type="players">
+                    <xs:unique name="unique-player-name">
+                        <xs:selector xpath="player"/>
+                        <xs:field xpath="@name"/>
+                    </xs:unique>
+                    <xs:unique name="unique-player-colors">
+                        <xs:selector xpath="player/color"/>
+                        <xs:field xpath="."/>
+                    </xs:unique>
+                </xs:element>
+                <xs:element name="board" type="board">
+                    <xs:unique name="unique-cell">
+                        <xs:selector xpath="cell"/>
+                        <xs:field xpath="@row"/>
+                        <xs:field xpath="@col"/>
+                    </xs:unique>
+                </xs:element>
+            </xs:sequence>
+            <xs:attribute name="current_player" type="xs:string" use="required"/>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:complexType name="players">
+        <xs:sequence minOccurs="2" maxOccurs="6">
+            <xs:element name="player">
+                <xs:complexType>
+                    <xs:sequence minOccurs="1" maxOccurs="3">
+                        <xs:element name="color" type="colors"/>
+                    </xs:sequence>
+                    <xs:attribute name="type" type="playerType" use="required"/>
+                    <xs:attribute name="name" type="xs:string" use="required"/>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:simpleType name="playerType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="HUMAN"/>
+            <xs:enumeration value="COMPUTER"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="colors">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="BLACK"/>
+            <xs:enumeration value="WHITE"/>
+            <xs:enumeration value="RED"/>
+            <xs:enumeration value="GREEN"/>
+            <xs:enumeration value="BLUE"/>
+            <xs:enumeration value="YELLOW"/>
+        </xs:restriction>
+    </xs:simpleType>
+    
+    <xs:complexType name="cell">
+        <xs:attribute name="row" use="required">
+            <xs:simpleType>
+                <xs:restriction base="xs:nonNegativeInteger">
+                    <xs:minInclusive value="1"/>
+                    <xs:maxInclusive value="17"/>
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="col" use="required">
+            <xs:simpleType>
+                <xs:restriction base="xs:nonNegativeInteger">
+                    <xs:minInclusive value="1"/>
+                    <xs:maxInclusive value="13"/>
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="color" use="required" type="colors"></xs:attribute>
+    </xs:complexType>
+    
+    <xs:complexType name="board">
+        <xs:sequence  minOccurs="0" maxOccurs="121">
+            <xs:element name="cell" type="cell"></xs:element>
+        </xs:sequence>
+    </xs:complexType>
+</xs:schema>

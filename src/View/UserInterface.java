@@ -1,5 +1,6 @@
 package View;
 
+import Controller.gameOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -32,6 +33,10 @@ public class UserInterface {
         }
         
         return playerNames;
+    }
+
+    public gameOption getGameOption() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     
 }

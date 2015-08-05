@@ -1,29 +1,59 @@
 package Controller;
-import Model.Logic;
+import Model.Engine;
 import View.UserInterface;
 import java.util.*;
 
 public class Game {
     
-    private Logic gameLogic;
-    private final UserInterface UI = new UserInterface();;
+    private Engine gameLogic;
+    private final UserInterface UI = new UserInterface();
     
     public void Run()
     {
-        Logic.Settings gameSettings = getGameSettings();
-        gameLogic = new Logic(gameSettings);
+        Engine.Settings gameSettings = getGameSettings();
+        gameLogic = new Engine(gameSettings);
+        playGame(gameSettings);
     }
 
-    private Logic.Settings getGameSettings() {
+    private void playGame(Engine.Settings gameSettings) {
+        play();      
+        newGame(gameSettings);
+    }
+
+    private void newGame(Engine.Settings gameSettings) {
+        gameOption option = UI.getGameOption();
+        switch(option)
+        {
+            case NewGame:
+                gameSettings = getGameSettings();
+            case Restart:
+                gameLogic.restart(gameSettings);
+                playGame(gameSettings);
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void play() {
+        boolean isRunning = true;
+        
+        while(isRunning)
+        {
+            isRunning = gameLogic.doIteration();
+        }
+    }
+
+    private Engine.Settings getGameSettings() {
         int totalPlayers = UI.getTotalPlayers();
-        Logic.Settings gameSettings = initSettings(totalPlayers);
+        Engine.Settings gameSettings = initSettings(totalPlayers);
         gameSettings.setTotalPlayers(totalPlayers);
 
         return gameSettings;
     }
 
-    private Logic.Settings initSettings(int totalPlayers) {
-        Logic.Settings gameSettings = new Logic.Settings();
+    private Engine.Settings initSettings(int totalPlayers) {
+        Engine.Settings gameSettings = new Engine.Settings();
         initColorNumber(totalPlayers, gameSettings);
         initHumanPlayers(totalPlayers, gameSettings);
         initPlayerNames(totalPlayers, gameSettings);
@@ -31,17 +61,17 @@ public class Game {
         return gameSettings;
     }
 
-    private void initPlayerNames(int totalPlayers, Logic.Settings gameSettings) {
+    private void initPlayerNames(int totalPlayers, Engine.Settings gameSettings) {
         List playerNames = UI.getNames(totalPlayers);
         gameSettings.setPlayerNames(playerNames);
     }
 
-    private void initHumanPlayers(int totalPlayers, Logic.Settings gameSettings) {
+    private void initHumanPlayers(int totalPlayers, Engine.Settings gameSettings) {
         int humanPlayers = UI.getHumanPlayers(totalPlayers);
         gameSettings.setHumanPlayers(humanPlayers);
     }
 
-    private void initColorNumber(int totalPlayers, Logic.Settings gameSettings) {
+    private void initColorNumber(int totalPlayers, Engine.Settings gameSettings) {
         int colorNumber = UI.getColorNumberForEach(totalPlayers);
         gameSettings.setColorNumber(colorNumber);
     }
