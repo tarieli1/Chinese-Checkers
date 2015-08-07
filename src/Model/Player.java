@@ -1,16 +1,24 @@
 package Model;
 
-import java.awt.Color;
 import java.awt.Point;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
 
-class Player {
+public class Player {
     
-    private Type type;
-    private String name;
-    private ArrayList<Color> colors;
-    private ArrayList<Point> points;
+    private final Type type;
+    private final String name;
+    private ArrayList<Color> colors = new ArrayList<>();
+    private ArrayList<Point> points = new ArrayList<>();
+    private HashMap<Point,ArrayList<Point>> possibleMoves;
+
+    public HashMap<Point, ArrayList<Point>> getPossibleMoves() {
+        return possibleMoves;
+    }
+
+    public void setPossibleMoves(HashMap<Point, ArrayList<Point>> possibleMoves) {
+        this.possibleMoves = possibleMoves;
+    }
     
     public Player(String name, Type type)
     {
@@ -23,25 +31,26 @@ class Player {
         return type;
     }
 
-    public void setType(Type type) {
-        this.type = type;
-    }
-
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public List<Color> getColors() {
+    public ArrayList<Color> getColors() {
         return colors;
     }
 
     public void setColors(ArrayList<Color> colors) {
         this.colors = colors;
     }
+
+    public ArrayList<Point> getPoints() {
+        return points;
+    }
+
+    public void setPoints(ArrayList<Point> points) {
+        this.points = points;
+    }
+    
     
     public enum Type
     {

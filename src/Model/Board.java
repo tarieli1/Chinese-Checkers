@@ -1,55 +1,48 @@
 package Model;
 
+import java.awt.Point;
 import java.util.*;
 
- class Board {
-    private static final int COLS = 25;
-    private static final int ROWS = 17;
+ public class Board {
+    public static final int COLS = 25;
+    public static final int ROWS = 17;
     private static final char EMPTY = 'E';
     private static final char END = ' ';
     
-    private Cell[][] gameBoard;
-
-    public Cell[][] getGameBoard() {
-        return gameBoard;
-    }
-
-    public void setGameBoard(Cell[][] gameBoard) {
-        this.gameBoard = gameBoard;
+    private final Cell[][] board;
+    
+    public Color getColorByPoint(Point point){
+        return board[point.x][point.y].color;
     }
     
+    public void setColorByPoint(Point point , Color color){
+        board[point.x][point.y].color = color;
+    }
+            
     public Board(){
-       gameBoard = createFullBoard();   
+       board = createFullBoard();   
     }
 
     private Cell[][] createFullBoard() {
-        Cell[][] board = null;
+        Cell[][] fullBoard = null;
         try{
-           ArrayList<String> boardLines =  FileManager.readLinesFromFile("TODO Path");
-           board = createBoardFromLines(boardLines);
+           ArrayList<String> boardLines =  FileManager.readLinesFromFile("src/Resources/boardTemplate.txt");
+           fullBoard = createBoardFromLines(boardLines);
         }
         catch(Exception e)
         {
             System.out.println(e.getMessage());
         }
-        return board;
+        return fullBoard;
       
     }
 
-    private void printBoard() {
-        for (int i = 0; i < ROWS; i++) {
-            for (int j = 0; j < COLS; j++) {
-                //todo                
-            }
-        }
-    }
-
     private Cell[][] createBoardFromLines(ArrayList<String> boardLines) {
-        Cell[][] board = new Cell[ROWS][];
+        Cell[][] fullBoard = new Cell[ROWS][];
         for (int i = 0; i < ROWS; i++) {
-            board[i] = getCellsFromString(boardLines.get(i));
+            fullBoard[i] = getCellsFromString(boardLines.get(i));
         }
-        return board;
+        return fullBoard;
     }
 
     private Cell[] getCellsFromString(String line) {
@@ -61,7 +54,21 @@ import java.util.*;
         return cellLine;
     }
 
-    private static class Cell {
+    void removeColors(Stack<Color> colorStack) {
+        for (int i = 0; i < ROWS; i++) {
+            for (int j = 0; j < COLS; j++) {
+                removeColorFromBoard(i, j, colorStack);
+            }
+        }
+    }
+
+    private void removeColorFromBoard(int i, int j, Stack<Color> colorStack) {
+        Color color = getColorByPoint(new Point(i, j));
+        if(colorStack.contains(color))
+            board[i][j].color = Color.EMPTY;
+    }
+
+     private static class Cell {
         
         private Color color;
 
@@ -93,18 +100,12 @@ import java.util.*;
                     break;
                 case EMPTY:
                     myColor = Color.EMPTY;
+                    break;
                 case END:
                     myColor = Color.TRANSPARENT;
             }
          return myColor;   
         }
 
-        public Color getColor() {
-            return color;
-        }
-
-        public void setColor(Color color) {
-            this.color = color;
-        }
     }
 }
