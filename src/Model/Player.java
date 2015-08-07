@@ -55,6 +55,6 @@ public class Player {
     public enum Type
     {
         Player,
-        Computer
+        COMPUTER
     }
 }

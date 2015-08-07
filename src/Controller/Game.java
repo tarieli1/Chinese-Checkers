@@ -12,6 +12,7 @@ public class Game {
     
     private Engine gameLogic;
     private final UserInterface UI = new UserInterface();
+    private static final int MAX_PLAYERS = 6;
     
     public void Run(){
         Engine.Settings gameSettings = getGameSettings();
@@ -50,7 +51,7 @@ public class Game {
     }
     
     private Engine.Settings getGameSettings() {
-        int totalPlayers = UI.getTotalPlayers();
+        int totalPlayers = getTotalPlayers();
         Engine.Settings gameSettings = initSettings(totalPlayers);
         gameSettings.setTotalPlayers(totalPlayers);
 
@@ -67,28 +68,46 @@ public class Game {
     }
 
     private void initPlayerNames(Engine.Settings gameSettings) {
-        List playerNames = UI.getNames(gameSettings.getHumanPlayers());
+        ArrayList<String> playerNames = new ArrayList<>();
+        String playerName;
+        for (int i = 1; i <= gameSettings.getHumanPlayers(); i++) {
+            playerName = UI.getName(i);
+            i = validateUniquePlayerName(playerNames, playerName, i);
+        }
         gameSettings.setPlayerNames(playerNames);
     }
 
+    private int validateUniquePlayerName(ArrayList<String> playerNames, String playerName, int i) {
+        if(!playerNames.contains(playerName))
+            playerNames.add(playerName);
+        else{
+            UI.alertUserThatPlayerNameIsNotUinque(playerName);
+            i--;
+        }
+        return i;
+    }
+
     private void initHumanPlayers(int totalPlayers, Engine.Settings gameSettings) {
-        int humanPlayers = UI.getHumanPlayers(totalPlayers);
+        int humanPlayers;
+        do{
+            humanPlayers = UI.getHumanPlayers(totalPlayers);
+        }while(humanPlayers < 0 || humanPlayers > totalPlayers);
         gameSettings.setHumanPlayers(humanPlayers);
     }
 
     private void initColorNumber(int totalPlayers, Engine.Settings gameSettings) {
-        int colorNumber = UI.getColorNumberForEach(totalPlayers);
+        int numOfMaxColorsForEach = MAX_PLAYERS/totalPlayers;
+        int colorNumber;
+        do{
+            colorNumber = UI.getColorNumberForEach(totalPlayers, numOfMaxColorsForEach);
+        }while(colorNumber < 1 || colorNumber > numOfMaxColorsForEach);
         gameSettings.setColorNumber(colorNumber);
     }
 
     private boolean doIteration() {
-        UI.printBoard(gameLogic.getGameBoard());
-        //gameLogic.doIteration(new Point(9,3) , new Point(8,4));
-        //UI.printBoard(gameLogic.getGameBoard());
-    
-    
+        UI.printBoard(gameLogic.getGameBoard());    
         Player curPlayer = gameLogic.getCurrentPlayer();
-        if(curPlayer.getType() == Type.Computer)
+        if(curPlayer.getType() == Type.COMPUTER)
              doAiIteration();
         else
              doPlayerIteration(curPlayer); 
@@ -169,5 +188,13 @@ public class Game {
                 counter++;
         }
         return new Point(p.x + 1,counter);
+    }
+    
+    public int getTotalPlayers() {
+        int totalPlayers;
+        do{
+            totalPlayers = UI.getTotalPlayers();
+        }while(totalPlayers > 6 || totalPlayers < 2);
+        return totalPlayers;
     }
 }

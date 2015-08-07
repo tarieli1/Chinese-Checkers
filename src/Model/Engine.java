@@ -36,7 +36,7 @@ public class Engine {
         playerNames.forEach((name)->players.add(new Player(name,Type.Player)));
         //Create em AIs
         for (int i = 0; i < AINum; i++)
-            players.add(new Player("AI" + i,Type.Computer));        
+            players.add(new Player("AI" + i,Type.COMPUTER));        
     }
 
     public Player getCurrentPlayer() {

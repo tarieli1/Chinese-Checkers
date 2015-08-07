@@ -17,29 +17,31 @@ public class UserInterface {
     private boolean isRunning = true;
     
     public int getTotalPlayers() {
+        int totalPlayers;
+        
         System.out.println("Enter the number of players 2-6");
-        return scanner.nextInt();
+        totalPlayers = scanner.nextInt();
+        
+        return totalPlayers;
     }
-
-    public int getColorNumberForEach(int totalPlayers) {
+    
+    public int getColorNumberForEach(int totalPlayers, int howManyColorsForEach){
         System.out.println("Enter number of colors each player want to use");
+        System.out.println("Each user can pick up to " + howManyColorsForEach);
+        
         return scanner.nextInt();
     }
 
     public int getHumanPlayers(int totalPlayers) {
-        System.out.format(
-                "Enter the number of human players 0-%d%n", totalPlayers);
+        System.out.format("Enter the number of human players 0-%d%n", totalPlayers);
+        
         return scanner.nextInt();
     }
 
-    public List getNames(int totalPlayers) {
-        ArrayList<String> playerNames = new ArrayList<>(totalPlayers);
-        for (int i = 1; i <= totalPlayers; i++) {
-            System.out.format("Please enter the %d' player name: ", i);
-            playerNames.add(scanner.next());
-        }
+    public String getName(int playerNumber) {
+        System.out.format("Please enter the %d' player name: ", playerNumber);
         
-        return playerNames;
+        return (scanner.next());
     }
 
     public gameOption getGameOption() {
@@ -193,5 +195,8 @@ public class UserInterface {
         System.out.println("");
     }
 
-
+    public void alertUserThatPlayerNameIsNotUinque(String playerName) {
+        System.out.println("The name " + playerName + " already exists");
+        System.out.println("Please pick another one: ");
+    }
 }
