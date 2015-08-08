@@ -16,13 +16,29 @@ import generatedClasses.Players;
 import java.awt.Point;
 import java.util.List;
 
-/**
- *
- * @author shahar2
- */
-public abstract class Converter {
+
+public abstract class ChineseCheckersFactory {
     
-    public static Players createSavedGamePlayersList(Engine engine) {
+    public static ChineseCheckers createSavedGameObject(Engine engine) {
+        ChineseCheckers savedGame = new ChineseCheckers();
+        savedGame.setCurrentPlayer(engine.getCurrentPlayer().getName());
+        savedGame.setPlayers(createSavedGamePlayersList(engine));
+        savedGame.setBoard(createSaveGameBoard(engine));
+        return savedGame;
+    }
+    
+    public static Point createSavedPoint(Point p, Engine engine) {
+        int counter = 0;
+        for (int i = 0; i <= p.y; i++) {
+            Model.Color color = engine.getGameBoard().getColorByPoint(new Point(p.x, i));
+            if (color != Model.Color.TRANSPARENT) {
+                counter++;
+            }
+        }
+        return new Point(p.x + 1, counter);
+    }
+        
+    private static Players createSavedGamePlayersList(Engine engine) {
         Players playersObj = new Players();
         List<Players.Player> playersList = playersObj.getPlayer();
         for (Player player : engine.getPlayers()) {
@@ -31,35 +47,24 @@ public abstract class Converter {
         return playersObj;
     }
 
-    public static Players.Player convertGamePlayerToSaveGamePlayer(Player player) {
+    private static Players.Player convertGamePlayerToSaveGamePlayer(Player player) {
         Players.Player savedPlayer = new Players.Player();
         savedPlayer.setName(player.getName());
-        savedPlayer.setType(convertTypeToSaveGameType(player.getType()));
+        savedPlayer.setType(createSavedGameType(player.getType()));
         List<ColorType> colorList = savedPlayer.getColorDef();
         for (Model.Color color : player.getColors()) 
-            colorList.add(convertColorToSaveGameColorType(color));
+            colorList.add(createSavedGameColorType(color));
         
         return savedPlayer;
     }
 
-    public static Point convertPointToSavedPoint(Point p, Engine engine) {
-        int counter = 0;
-        for (int i = p.y; i >= 0; i--) {
-            Color color = engine.getGameBoard().getColorByPoint(new Point(p.x, i));
-            if (color != Model.Color.TRANSPARENT) {
-                counter++;
-            }
-        }
-        return new Point(p.x + 1, counter);
-    }
-
-    public static  void convertTargetToSaveGameTarget(ColorType savedColor) {
+    private static  void convertTargetToSaveGameTarget(ColorType savedColor) {
         ColorType.Target tgt = savedColor.getTarget();
         tgt.setCol(1);//TODO
         tgt.setRow(2);//TODO
     }
 
-    public static  Color createSavedColorFromColor(Model.Color color) {
+    private static  Color createSavedColorFromColor(Model.Color color) {
         Color res = null;
         switch (color) {
             case BLACK:
@@ -84,14 +89,14 @@ public abstract class Converter {
         return res;
     }
 
-    private static ColorType convertColorToSaveGameColorType(Model.Color color) {
+    private static ColorType createSavedGameColorType(Model.Color color) {
         ColorType savedColor = new ColorType();
         savedColor.setColor(createSavedColorFromColor(color));
         convertTargetToSaveGameTarget(savedColor);
         return savedColor;
     }
 
-    private static PlayerType convertTypeToSaveGameType(Type type) {
+    private static PlayerType createSavedGameType(Type type) {
         if (type == Player.Type.COMPUTER) {
             return PlayerType.COMPUTER;
         } else {
@@ -99,37 +104,13 @@ public abstract class Converter {
         }
     }
 
-    private static Cell createSavedCell(int i, int j, Model.Color curColor) {
+    private static Cell createSavedCell(int i, int j, Model.Color curColor,Engine engine){
         Cell savedCell = new Cell();
-        Point savedPoint = convertPointToSavedPoint(new Point(i, j));
+        Point savedPoint = createSavedPoint(new Point(i, j),engine);
         savedCell.setRow(savedPoint.x);
         savedCell.setCol(savedPoint.y);
         savedCell.setColor(createSavedColorFromColor(curColor));
         return savedCell;
-    }
-
-    public static Point convertSavedPointToPoint(Point p, Engine engine) {
-        int counter = 0;
-        Point res = null;
-        for (int i = 0; i < Model.Board.COLS; i++) {
-            Model.Color color = engine.getGameBoard().getColorByPoint(new Point(p.x - 1, i));
-            if (color != Model.Color.TRANSPARENT) {
-                counter++;
-            }
-            if (counter == p.y) {
-                res = new Point(p.x - 1, i);
-                break;
-            }
-        }
-        return res;
-    }
-
-    private static ChineseCheckers createSavedGameObject(Engine engine) {
-        ChineseCheckers savedGame = new ChineseCheckers();
-        savedGame.setCurrentPlayer(engine.getCurrentPlayer().getName());
-        savedGame.setPlayers(createSavedGamePlayersList(engine));
-        savedGame.setBoard(createSaveGameBoard(engine));
-        return savedGame;
     }
 
     private static Board createSaveGameBoard(Engine engine) {
@@ -139,7 +120,7 @@ public abstract class Converter {
             for (int j = 0; j < Model.Board.COLS; j++) {
                 Model.Color curColor = engine.getGameBoard().getColorByPoint(new Point(i, j));
                 if (engine.isMarble(curColor)) {
-                    savedCellsList.add(createSavedCell(i, j, curColor));
+                    savedCellsList.add(createSavedCell(i, j, curColor,engine));
                 }
             }
         }

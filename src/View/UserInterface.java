@@ -26,9 +26,10 @@ public class UserInterface {
         return gameOpt[getValidChoice(gameOpt.length)];
     }
 
-    public Point getStartPoint(Player curPlayer) {
+    public Point getStartPoint(Player curPlayer, ArrayList<Point> playerP) {
         greet(curPlayer);
-
+        showPossiblePointsToPick(playerP);
+        
         return getPointFromUser();
     }
 
@@ -64,12 +65,6 @@ public class UserInterface {
 
         checkIntValidation(isValid);
         return scanner.nextInt();
-    }
-
-    public void showPossibleMoves(ArrayList<Point> possibleMoves) {
-        System.out.println("Your possible moves are:");
-        possibleMoves.forEach((point) -> System.out.format("{%s,%s},", point.x, point.y));
-        System.out.println("");
     }
 
     public Point getEndPoint(Player curPlayer) {
@@ -269,4 +264,44 @@ public class UserInterface {
         }
     }
 
+    public int checkIfUserWantToSaveAsOrJustSave() {
+        boolean isValid = false;
+
+        showUserSaveOptions();
+        checkIntValidation(isValid);
+
+        return scanner.nextInt();
+    }
+
+    private void showUserSaveOptions() {
+        System.out.println("What do you want to do?");
+        System.out.println("1. Save As");
+        System.out.println("2. Save");
+    }
+
+    public String getPathFromUser() {
+        System.out.println("Please enter the path where you want your game to be saved/load");
+        System.out.println("like: C:/ChineseCheckers/SavedGame/Chinese.xml");
+
+        return scanner.next();
+    }
+
+    public void showExceptionToUser(Exception ex) {
+        System.out.println(ex.getMessage());
+    }
+
+    public int checkIfUserWantToLoadGameOrPlayNewGame() {
+        boolean isValid = false;
+
+        showUserStartGameOptions();
+        checkIntValidation(isValid);
+
+        return scanner.nextInt();
+    }
+
+    private void showUserStartGameOptions() {
+        System.out.println("What do you want to do?");
+        System.out.println("1. Play New Game");
+        System.out.println("2. Load Game");
+    }
 }

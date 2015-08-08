@@ -1,17 +1,19 @@
 package Controller;
 
-import static Model.Board.COLS;
-import Model.Color;
+import Model.ChineseCheckersFactory;
 import Model.Engine;
+import Model.EngineFactory;
+import Model.FileManager;
 import Model.Player;
 import Model.Player.Type;
 import View.UserInterface;
+import generatedClasses.ChineseCheckers;
 import java.awt.Point;
 import java.util.*;
 
 public class Game {
 
-    private Engine gameLogic;
+    private Engine gameEngine;
     private final UserInterface UI = new UserInterface();
     private static final int MAX_PLAYERS = 6;
     private static final int PLAY_TURN = 1;
@@ -19,10 +21,23 @@ public class Game {
     private static final int QUIT = 3;
     private static final int START = 1;
     private static final int END = 2;
+    private String saveGamePath = null;
 
     public void Run() {
+        int userChoice;
+        do {
+            userChoice = UI.checkIfUserWantToLoadGameOrPlayNewGame();
+        } while (userChoice < 1 || userChoice > 2);
+        if (userChoice == 1) {
+            createNewGame();
+        } else {
+            loadGame(UI.getPathFromUser());
+        }
+    }
+
+    private void createNewGame() {
         Engine.Settings gameSettings = getGameSettings();
-        gameLogic = new Engine(gameSettings);
+        gameEngine = new Engine(gameSettings);
         playGame(gameSettings);
     }
 
@@ -35,7 +50,7 @@ public class Game {
         boolean isGameOver = false, isRunning = true;
 
         while (isRunning && !isGameOver) {
-            isGameOver = gameLogic.isGameOver();
+            isGameOver = gameEngine.isGameOver();
             isRunning = doIteration();
         }
     }
@@ -46,7 +61,7 @@ public class Game {
             case NewGame:
                 gameSettings = getGameSettings();
             case Restart:
-                gameLogic.restart(gameSettings);
+                gameEngine.restart(gameSettings);
                 playGame(gameSettings);
                 break;
             default:
@@ -109,8 +124,8 @@ public class Game {
     }
 
     private boolean doIteration() {
-        UI.printBoard(gameLogic.getGameBoard());
-        Player curPlayer = gameLogic.getCurrentPlayer();
+        UI.printBoard(gameEngine.getGameBoard());
+        Player curPlayer = gameEngine.getCurrentPlayer();
         if (curPlayer.getType() == Type.COMPUTER) {
             doAiIteration();
         } else {
@@ -122,9 +137,9 @@ public class Game {
     private void doAiIteration() {
         Point start, end;
         ArrayList<Point> usedPoints;
-        usedPoints = gameLogic.doAiIteration();
-        start = convertBoardPointToPoint(usedPoints.get(0));
-        end = convertBoardPointToPoint(usedPoints.get(1));
+        usedPoints = gameEngine.doAiIteration();
+        start = ChineseCheckersFactory.createSavedPoint(usedPoints.get(0), gameEngine);
+        end = ChineseCheckersFactory.createSavedPoint(usedPoints.get(1), gameEngine);
         UI.showPlayerAiMove(start, end);
     }
 
@@ -153,7 +168,7 @@ public class Game {
         start = getValidStartingPoint(curPlayer);
         if (UI.isRunning()) {
             end = getValidEndPoint(start, curPlayer);
-            gameLogic.doIteration(start, end);
+            gameEngine.doIteration(start, end);
         }
     }
 
@@ -164,16 +179,17 @@ public class Game {
         ArrayList<Point> playerPoints;
         playerPoints = convertBoardPointsToPoints(curPlayer.getPoints());
         playerStart = validatePoint(playerStart, curPlayer, playerPoints, START);
-        do {
-            start = convertPointToBoardPoint(playerStart);
-            possibleMoves = gameLogic.getPossibleMovesForCurPlayerInPoint(start);
+        do{
+            start = EngineFactory.createGamePoint(playerStart, gameEngine);
+            possibleMoves = gameEngine.getPossibleMovesForCurPlayerInPoint(start);
         } while (possibleMoves == null);
         possibleMoves = convertBoardPointsToPoints(possibleMoves);
         UI.showPossiblePointsToPick(possibleMoves);
+        
         return start;
     }
 
-    private Point validatePoint(Point playerStart, Player curPlayer, ArrayList<Point> playerP, int whichPoint) {
+    private Point validatePoint(Point playerStart, Player curPlayer,ArrayList<Point> playerP, int whichPoint) {
         do {
             if (whichPoint == START) {
                 playerStart = UI.getStartPoint(curPlayer, playerP);
@@ -190,8 +206,8 @@ public class Game {
         Point playerEnd = null;
         do {
             playerEnd = validatePoint(playerEnd, curPlayer, null, END);
-            end = convertPointToBoardPoint(playerEnd);
-        } while (!gameLogic.isPossibleMove(start, end));
+            end = ChineseCheckersFactory.createSavedPoint(playerEnd, gameEngine);
+        } while (!gameEngine.isPossibleMove(start, end));
         return end;
     }
 
@@ -204,21 +220,77 @@ public class Game {
     }
 
     private void clearPlayerPointsFromBoard(Player curPlayer) {
-        UI.clearPlayerPointsFromBoard(curPlayer.getPoints(), gameLogic.getGameBoard());
-        gameLogic.removePlayer(curPlayer);
+        UI.clearPlayerPointsFromBoard(curPlayer.getPoints(), gameEngine.getGameBoard());
+        gameEngine.removePlayer(curPlayer);
     }
 
     private ArrayList<Point> convertBoardPointsToPoints(ArrayList<Point> possibleMoves) {
         ArrayList<Point> result = new ArrayList<>();
         for (Point possibleMove : possibleMoves) {
-            result.add(convertBoardPointToPoint(possibleMove));
+            result.add(ChineseCheckersFactory.createSavedPoint(possibleMove, gameEngine));
 
         }
         return result;
     }
 
     private void saveGame() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        int userChoice;
+        boolean isSavedGame = false;
+        String path = null;
+
+        do {
+            userChoice = UI.checkIfUserWantToSaveAsOrJustSave();
+        } while (userChoice < 1 || userChoice > 2);
+        while (!isSavedGame) {
+            if (userChoice == 1 || !isSaveGamePathExists()) {
+                path = UI.getPathFromUser();
+            }
+            isSavedGame = tryToSaveGame(path);
+        }
+    }
+
+    private boolean tryToSaveGame(String path) {
+        boolean isFileSaved = true;
+
+        try {
+            if (path != null) {
+                saveGamePath = path;
+            }
+            ChineseCheckers savedGame = ChineseCheckersFactory.createSavedGameObject(gameEngine);
+            FileManager.saveGame(saveGamePath, savedGame);
+        } catch (Exception ex) {
+            UI.showExceptionToUser(ex);
+            isFileSaved = false;
+        }
+
+        return isFileSaved;
+    }
+
+    public boolean isSaveGamePathExists() {
+        return saveGamePath != null;
+    }
+
+    private void loadGame(String path) {
+        boolean isFileLoaded = false;
+
+        while (!isFileLoaded) {
+            isFileLoaded = tryToLoadGame(path, isFileLoaded);
+            if (!isFileLoaded) {
+                path = UI.getPathFromUser();
+            }
+        }
+    }
+
+    private boolean tryToLoadGame(String path, boolean isFileLoaded) {
+        try {
+            ChineseCheckers savedGame = FileManager.loadGame(path);
+            gameEngine = EngineFactory.createEngine(savedGame);
+        } catch (Exception ex) {
+            UI.showExceptionToUser(ex);
+            isFileLoaded = false;
+        }
+
+        return isFileLoaded;
     }
 
 }

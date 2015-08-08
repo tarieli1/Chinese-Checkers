@@ -3,12 +3,6 @@ package Model;
 import static Model.Board.COLS;
 import static Model.Board.ROWS;
 import Model.Player.Type;
-import generatedClasses.Cell;
-import generatedClasses.ChineseCheckers;
-import generatedClasses.ColorType;
-import generatedClasses.ColorType.Target;
-import generatedClasses.PlayerType;
-import generatedClasses.Players;
 import java.awt.Point;
 import java.util.*;
 
@@ -30,14 +24,18 @@ public class Engine {
     }
 
     private void createGameObjects(Settings gameSettings) {
-        createPlayers(gameSettings.totalPlayers, gameSettings.playerNames);
+        createPlayers(gameSettings);
         gameBoard = new Board();
         createTheColorStack();
     }
     
-    private void createPlayers(int totalPlayers, List<String> playerNames) {
+    private void createPlayers(Settings gameSettings) {
         players.clear();
-        int AINum = totalPlayers - playerNames.size();
+        List<String> playerNames = gameSettings.playerNames;
+        int AINum = gameSettings.totalPlayers - gameSettings.humanPlayers;
+        for (int i = 0; i < gameSettings.humanPlayers; i++) {
+            players.add(new Player(playerNames.get(i),Type.Player));
+        }
         
         playerNames.forEach((name)->players.add(new Player(name,Type.Player)));
         //Create em AIs
@@ -287,6 +285,14 @@ public class Engine {
         players.remove(curPlayer);
     }
 
+    void setGameBoard(Board gameBoard) {
+        this.gameBoard = gameBoard;
+    }
+
+    void setCurrentPlayerIndx(int currentPlayerIndx) {
+        this.currentPlayerIndx = currentPlayerIndx;
+    }
+    
     public static class Settings {
         private int totalPlayers;
         private int colorNumber;
@@ -326,4 +332,5 @@ public class Engine {
         }
         
     }   
+
 }
