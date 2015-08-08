@@ -68,6 +68,10 @@ import java.util.*;
             board[i][j].color = Color.EMPTY;
     }
 
+    void makeEmpty() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
      private static class Cell {
         
         private Color color;

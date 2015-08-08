@@ -21,10 +21,10 @@ public abstract class ChineseCheckersFactory {
         return savedGame;
     }
 
-    public static Point createSavedPoint(Point p, Engine engine) {
+    public static Point createSavedPoint(Point p, Model.Board board) {
         int counter = 0;
         for (int i = 0; i <= p.y; i++) {
-            Model.Color color = engine.getGameBoard().getColorByPoint(new Point(p.x, i));
+            Model.Color color = board.getColorByPoint(new Point(p.x, i));
             if (color != Model.Color.TRANSPARENT) {
                 counter++;
             }
@@ -99,9 +99,9 @@ public abstract class ChineseCheckersFactory {
         }
     }
 
-    private static Cell createSavedCell(int i, int j, Model.Color curColor, Engine engine) {
+    private static Cell createSavedCell(int i, int j, Model.Color curColor, Model.Board board) {
         Cell savedCell = new Cell();
-        Point savedPoint = createSavedPoint(new Point(i, j), engine);
+        Point savedPoint = createSavedPoint(new Point(i, j), board);
         savedCell.setRow(savedPoint.x);
         savedCell.setCol(savedPoint.y);
         savedCell.setColor(createSavedColorFromColor(curColor));
@@ -110,12 +110,13 @@ public abstract class ChineseCheckersFactory {
 
     private static Board createSaveGameBoard(Engine engine) {
         Board savedBoard = new Board();
+        Model.Board gameBoard = engine.getGameBoard();
         List<Cell> savedCellsList = savedBoard.getCell();
         for (int i = 0; i < Model.Board.ROWS; i++) {
             for (int j = 0; j < Model.Board.COLS; j++) {
-                Model.Color curColor = engine.getGameBoard().getColorByPoint(new Point(i, j));
+                Model.Color curColor = gameBoard.getColorByPoint(new Point(i, j));
                 if (engine.isMarble(curColor)) {
-                    savedCellsList.add(createSavedCell(i, j, curColor, engine));
+                    savedCellsList.add(createSavedCell(i, j, curColor, gameBoard));
                 }
             }
         }

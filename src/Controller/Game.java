@@ -10,7 +10,6 @@ import View.UserInterface;
 import generatedClasses.ChineseCheckers;
 import java.awt.Point;
 import java.util.*;
-import javafx.util.Pair;
 
 public class Game {
 
@@ -24,10 +23,12 @@ public class Game {
     private static final int START = 1;
     private static final int END = 2;
     private String saveGamePath = null;
+
     //Tamir King
+
     public void Run() {
         int userChoice = UI.checkIfUserWantToLoadGameOrPlayNewGame();
-        while(userChoice < 1 || userChoice > 2) {
+        while (userChoice < 1 || userChoice > 2) {
             UI.printErrorMsgToUserAboutInvalidNumberInput(1, 2);
             userChoice = UI.checkIfUserWantToLoadGameOrPlayNewGame();
         }
@@ -108,20 +109,24 @@ public class Game {
         }
         return i;
     }
+
     //Tamir King
+
     private void initHumanPlayers(int totalPlayers, Engine.Settings gameSettings) {
         int humanPlayers = UI.getHumanPlayers(totalPlayers);
-        while(humanPlayers < 0 || humanPlayers > totalPlayers) {
+        while (humanPlayers < 0 || humanPlayers > totalPlayers) {
             UI.printErrorMsgToUserAboutInvalidNumberInput(0, totalPlayers);
             humanPlayers = UI.getHumanPlayers(totalPlayers);
         }
         gameSettings.setHumanPlayers(humanPlayers);
     }
+
     //Tamir King
+
     private void initColorNumber(int totalPlayers, Engine.Settings gameSettings) {
         int numOfMaxColorsForEach = MAX_PLAYERS / totalPlayers;
         int colorNumber = UI.getColorNumberForEach(totalPlayers, numOfMaxColorsForEach);;
-        while(colorNumber < 1 || colorNumber > numOfMaxColorsForEach) {
+        while (colorNumber < 1 || colorNumber > numOfMaxColorsForEach) {
             UI.printErrorMsgToUserAboutInvalidNumberInput(1, numOfMaxColorsForEach);
             colorNumber = UI.getColorNumberForEach(totalPlayers, numOfMaxColorsForEach);
         }
@@ -143,15 +148,15 @@ public class Game {
         Point start, end;
         ArrayList<Point> usedPoints;
         usedPoints = gameEngine.doAiIteration();
-        start = ChineseCheckersFactory.createSavedPoint(usedPoints.get(0), gameEngine);
-        end = ChineseCheckersFactory.createSavedPoint(usedPoints.get(1), gameEngine);
+        start = ChineseCheckersFactory.createSavedPoint(usedPoints.get(0), gameEngine.getGameBoard());
+        end = ChineseCheckersFactory.createSavedPoint(usedPoints.get(1), gameEngine.getGameBoard());
         UI.showPlayerAiMove(start, end);
     }
 
     private void doPlayerIteration(Player curPlayer) {
         Point start, end;
         int userChoice = UI.isUserWannaQuit(curPlayer.getName());
-         while (userChoice < 1 || userChoice > 3){
+        while (userChoice < 1 || userChoice > 3) {
             UI.printErrorMsgToUserAboutInvalidNumberInput(1, 3);
             userChoice = UI.isUserWannaQuit(curPlayer.getName());
         }
@@ -177,58 +182,70 @@ public class Game {
             gameEngine.doIteration(start, end);
         }
     }
+
     //Tamir King
+
     private Point getValidStartingPoint(Player curPlayer) {
         Point start;
         Point playerStart;
         ArrayList<Point> possibleMoves;
-        HashMap<Point,ArrayList<Point>> playerPointsMap = curPlayer.getPossibleMoves();
-        ArrayList<Point> moveablePoints = getNotEmptyKeys(playerPointsMap);   
+        HashMap<Point, ArrayList<Point>> playerPointsMap = curPlayer.getPossibleMoves();
+        ArrayList<Point> moveablePoints = getNotEmptyKeys(playerPointsMap);
         moveablePoints = convertBoardPointsToPoints(moveablePoints);
-        do{
+        do {
             playerStart = validatePoint(curPlayer, moveablePoints, START);
-            start = EngineFactory.createGamePoint(playerStart, gameEngine);
+            start = EngineFactory.createGamePoint(playerStart, gameEngine.getGameBoard());
             possibleMoves = gameEngine.getPossibleMovesForCurPlayerInPoint(start);
-            if(possibleMoves == null)
+            if (possibleMoves == null) {
                 UI.printInvalidPoint(playerStart);
+            }
         } while (possibleMoves == null);
         possibleMoves = convertBoardPointsToPoints(possibleMoves);
         UI.showPossiblePointsToPick(possibleMoves);
-        
+
         return start;
     }
+
     //Tamir King
+
     private Point validatePoint(Player curPlayer, ArrayList<Point> playerP, int whichPoint) {
         Point playerStart;
         boolean validPlayerStart;
         do {
-            if (whichPoint == START)
-               playerStart = UI.getStartPoint(curPlayer, playerP);
-            else
+            if (whichPoint == START) {
+                playerStart = UI.getStartPoint(curPlayer, playerP);
+            } else {
                 playerStart = UI.getEndPoint(curPlayer);
+            }
             validPlayerStart = playerStart.x < 1 || playerStart.x > 17 || playerStart.y < 1 || playerStart.y > 17;
-            if(validPlayerStart)
+            if (validPlayerStart) {
                 UI.printInvalidPoint(playerStart);
-        } while(validPlayerStart);
+            }
+        } while (validPlayerStart);
 
         return playerStart;
     }
+
     //Tamir King
+
     private Point getValidEndPoint(Point start, Player curPlayer) {
         Point end;
         Point playerEnd = null;
         do {
             playerEnd = validatePoint(curPlayer, null, END);
-            end = EngineFactory.createGamePoint(playerEnd, gameEngine);
-            if(!gameEngine.isPossibleMove(start, end))
+            end = EngineFactory.createGamePoint(playerEnd, gameEngine.getGameBoard());
+            if (!gameEngine.isPossibleMove(start, end)) {
                 UI.printInvalidPoint(end);
+            }
         } while (!gameEngine.isPossibleMove(start, end));
         return end;
     }
+
     //Tamir King
+
     public int getTotalPlayers() {
         int totalPlayers = UI.getTotalPlayers();
-        while(totalPlayers > 6 || totalPlayers < 2) {
+        while (totalPlayers > 6 || totalPlayers < 2) {
             UI.printErrorMsgToUserAboutInvalidNumberInput(MIN_PLAYERS, MAX_PLAYERS);
             totalPlayers = UI.getTotalPlayers();
         }
@@ -243,7 +260,7 @@ public class Game {
     private ArrayList<Point> convertBoardPointsToPoints(ArrayList<Point> possibleMoves) {
         ArrayList<Point> result = new ArrayList<>();
         for (Point possibleMove : possibleMoves) {
-            result.add(ChineseCheckersFactory.createSavedPoint(possibleMove, gameEngine));
+            result.add(ChineseCheckersFactory.createSavedPoint(possibleMove, gameEngine.getGameBoard()));
 
         }
         return result;
@@ -313,8 +330,9 @@ public class Game {
         ArrayList<Point> notEmptyKeys = new ArrayList<>();
 
         for (Point key : playerPointsMap.keySet()) {
-            if(!playerPointsMap.get(key).isEmpty())
+            if (!playerPointsMap.get(key).isEmpty()) {
                 notEmptyKeys.add(key);
+            }
         }
         return notEmptyKeys;
     }
