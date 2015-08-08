@@ -25,16 +25,18 @@ public abstract class EngineFactory {
     }
     
     public static Point createGamePoint(Point p, Engine engine) {
+        
         int counter = 1;
-        int i = 0;
-        while( counter != p.y){
-            Model.Color color = engine.getGameBoard().getColorByPoint(new Point(p.x, i));
+        int i = -1;
+        while( counter <= p.y){
+            ++i;
+            Model.Color color = engine.getGameBoard().getColorByPoint(new Point(p.x-1, i));
             if (color != Model.Color.TRANSPARENT) 
                 counter++;
-               
-            ++i;
         }
         return new Point(p.x - 1, i);
+
+        
     }
 
     private static Engine.Settings createGameSettings(ChineseCheckers savedGame) {

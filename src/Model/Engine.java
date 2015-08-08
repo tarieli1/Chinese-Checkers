@@ -36,9 +36,7 @@ public class Engine {
         for (int i = 0; i < gameSettings.humanPlayers; i++) {
             players.add(new Player(playerNames.get(i),Type.Player));
         }
-        
-        playerNames.forEach((name)->players.add(new Player(name,Type.Player)));
-        //Create em AIs
+                //Create em AIs
         for (int i = 0; i < AINum; i++)
             players.add(new Player("AI" + i,Type.COMPUTER));        
     }

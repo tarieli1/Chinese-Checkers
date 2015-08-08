@@ -118,12 +118,13 @@ public class UserInterface {
 
         return scanner.next();
     }
-
+    //Tamir King
     private void checkStringValidation(boolean isValid) {
         while (!isValid) {
             if (scanner.hasNext()) {
                 isValid = true;
             } else {
+                System.out.println("PLEASE ENTER A CHARECTER!");
                 scanner.next();
             }
         }
@@ -154,9 +155,9 @@ public class UserInterface {
 
         return scanner.nextInt();
     }
-
+    //Tamir King
     private void greet(Player curPlayer) {
-        System.out.println("You are: " + curPlayer.getName() + "\nYour colors: ");
+        System.out.println("\nYou are: " + curPlayer.getName() + "\nYour colors: ");
         curPlayer.getColors().forEach((curColor) -> System.out.print(curColor.name() + ", "));
         System.out.println("\nEnter the marble you want to play with:");
     }
@@ -253,12 +254,13 @@ public class UserInterface {
 
         return userChoice;
     }
-
+    //Tamir King
     private void checkIntValidation(boolean isValid) {
         while (!isValid) {
             if (scanner.hasNextInt()) {
                 isValid = true;
             } else {
+                System.out.println("Please enter a NUMBER!");
                 scanner.next();
             }
         }
@@ -303,5 +305,14 @@ public class UserInterface {
         System.out.println("What do you want to do?");
         System.out.println("1. Play New Game");
         System.out.println("2. Load Game");
+    }
+    //Tamir King
+    public void printErrorMsgToUserAboutInvalidNumberInput(int minInput, int maxInput) {
+        System.out.println("YOU HAVE ENTERED A WRONG NUMBER");
+        System.out.format("NUMBERS SHOULD BE: (%d-%d) \n", minInput, maxInput);
+    }
+    //Tamir King
+    public void printInvalidPoint(Point start) {
+        System.out.format("The Marble: (%d,%d) is not yours", start.x, start.y);
     }
 }
