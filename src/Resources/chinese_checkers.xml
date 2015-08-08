@@ -3,10 +3,14 @@
     current_player="john">
     <players>
         <player type="HUMAN" name="john">
-            <color>GREEN</color>
+            <colorDef color="GREEN">
+                <target row="17" col="1"/>
+            </colorDef>
         </player>
         <player type="COMPUTER" name="paul">
-            <color>RED</color>
+            <colorDef color="RED">
+                <target row="1" col="1"/>
+            </colorDef>
         </player>
     </players>
     <board>

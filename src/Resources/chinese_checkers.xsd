@@ -12,6 +12,11 @@
                         <xs:selector xpath="player/color"/>
                         <xs:field xpath="."/>
                     </xs:unique>
+                    <xs:unique name="unique-target">
+                        <xs:selector xpath="player/colorType/target"/>
+                        <xs:field xpath="@row"/>
+                        <xs:field xpath="@col"/>
+                    </xs:unique>
                 </xs:element>
                 <xs:element name="board" type="board">
                     <xs:unique name="unique-cell">
@@ -30,7 +35,7 @@
             <xs:element name="player">
                 <xs:complexType>
                     <xs:sequence minOccurs="1" maxOccurs="3">
-                        <xs:element name="color" type="colors"/>
+                        <xs:element name="colorDef" type="colorType"/>
                     </xs:sequence>
                     <xs:attribute name="type" type="playerType" use="required"/>
                     <xs:attribute name="name" type="xs:string" use="required"/>
@@ -46,7 +51,7 @@
         </xs:restriction>
     </xs:simpleType>
 
-    <xs:simpleType name="colors">
+    <xs:simpleType name="color">
         <xs:restriction base="xs:string">
             <xs:enumeration value="BLACK"/>
             <xs:enumeration value="WHITE"/>
@@ -56,8 +61,19 @@
             <xs:enumeration value="YELLOW"/>
         </xs:restriction>
     </xs:simpleType>
-    
-    <xs:complexType name="cell">
+
+    <xs:complexType name="colorType">
+        <xs:sequence minOccurs="1" maxOccurs="1">
+            <xs:element name="target">
+                <xs:complexType>
+                    <xs:attributeGroup ref="position"/>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+        <xs:attribute name="color" use="required" type="color"></xs:attribute>
+    </xs:complexType>
+
+    <xs:attributeGroup name="position">
         <xs:attribute name="row" use="required">
             <xs:simpleType>
                 <xs:restriction base="xs:nonNegativeInteger">
@@ -74,7 +90,11 @@
                 </xs:restriction>
             </xs:simpleType>
         </xs:attribute>
-        <xs:attribute name="color" use="required" type="colors"></xs:attribute>
+    </xs:attributeGroup>
+
+    <xs:complexType name="cell">
+        <xs:attributeGroup ref="position"/>
+        <xs:attribute name="color" use="required" type="color"></xs:attribute>
     </xs:complexType>
     
     <xs:complexType name="board">

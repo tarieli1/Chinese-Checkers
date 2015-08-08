@@ -8,138 +8,190 @@ import Model.Color;
 import Model.Player;
 import java.awt.Point;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Scanner;
 
 public class UserInterface {
-    
+
     private final Scanner scanner = new Scanner(System.in);
     private boolean isRunning = true;
-    
-    public int getTotalPlayers() {
-        int totalPlayers;
-        
-        System.out.println("Enter the number of players 2-6");
-        totalPlayers = scanner.nextInt();
-        
-        return totalPlayers;
-    }
-    
-    public int getColorNumberForEach(int totalPlayers, int howManyColorsForEach){
-        System.out.println("Enter number of colors each player want to use");
-        System.out.println("Each user can pick up to " + howManyColorsForEach);
-        
-        return scanner.nextInt();
-    }
-
-    public int getHumanPlayers(int totalPlayers) {
-        System.out.format("Enter the number of human players 0-%d%n", totalPlayers);
-        
-        return scanner.nextInt();
-    }
-
-    public String getName(int playerNumber) {
-        System.out.format("Please enter the %d' player name: ", playerNumber);
-        
-        return (scanner.next());
-    }
 
     public gameOption getGameOption() {
         System.out.println("Pick your option:");
         gameOption[] gameOpt = gameOption.values();
-        
-        for (int i = 0; i < gameOpt.length; i++) 
+
+        for (int i = 0; i < gameOpt.length; i++) {
             System.out.println(i + "." + gameOpt[i].name());
-        
+        }
+
         return gameOpt[getValidChoice(gameOpt.length)];
     }
 
     public Point getStartPoint(Player curPlayer) {
         greet(curPlayer);
-        
-        return getPointFromUser();
-    }
-    
-    private Point getPointFromUser(){
-        System.out.println("Enter row number: ");
-        int rowNum = scanner.nextInt();
-        System.out.println("Enter col number: ");
-        int colNum = scanner.nextInt();
-        return new Point(rowNum,colNum);
-    } 
 
-    private void greet(Player curPlayer) {
-        System.out.println("You are: " + curPlayer.getName() + "\nYour colors: ");
-        
-        curPlayer.getColors().forEach((curColor)-> System.out.print(curColor.name() + ", "));
-        
-        System.out.println("\nEnter the marble you want to play with:(G5)\n");        
+        return getPointFromUser();
     }
 
     public void showPlayerAiMove(Point start, Point end) {
-        
-        System.out.format("Computer moved from (%s,%s) to (%s,%s) \n", start.x,start.y,end.x,end.y);
+
+        System.out.format("Computer moved from (%s,%s) to (%s,%s) \n", start.x, start.y, end.x, end.y);
     }
 
     public boolean isRunning() {
         return isRunning;
     }
 
-    private int getValidChoice(int gameOptLength) {
-        int userChoice = -1;
-        
-        do {
-            if(scanner.hasNextInt())
-                userChoice = scanner.nextInt();
-           } while (userChoice < 0 && userChoice > gameOptLength);
-        
-        return userChoice;       
+    public void clearPlayerPointsFromBoard(ArrayList<Point> pointsToRemove, Board board) {
+        for (Point pointToRemove : pointsToRemove) {
+            board.setColorByPoint(pointToRemove, Color.EMPTY);
+        }
     }
 
-    public Point getEndPoint(Player curPlayer) {
-        System.out.println("Where you want to go?(8G)\n ");
-        return getPointFromUser();
-
-    }
-    
-    public void printBoard(Board gameBoard) {
-        printNavigationLetters();
-        printRows(gameBoard);
-    }
-
-    private void printNavigationLetters() {
-        System.out.print("  ");
-        for (int i = 0; i < COLS; i++) {
-            System.out.print((char)('A' +i));
+    public void showPossiblePointsToPick(ArrayList<Point> playerPoints) {
+        System.out.println("Your possible points to pick are:");
+        for (int i = 0; i < playerPoints.size(); i++) {
+            if (i % 5 == 0) {
+                System.out.println("");
+            }
+            System.out.format("{%s,%s},", playerPoints.get(i).x, playerPoints.get(i).y);
         }
         System.out.println("");
     }
 
+    public int getTotalPlayers() {
+        boolean isValid = false;
+        System.out.println("Enter the number of players 2-6");
+
+        checkIntValidation(isValid);
+        return scanner.nextInt();
+    }
+
+    public void showPossibleMoves(ArrayList<Point> possibleMoves) {
+        System.out.println("Your possible moves are:");
+        possibleMoves.forEach((point) -> System.out.format("{%s,%s},", point.x, point.y));
+        System.out.println("");
+    }
+
+    public Point getEndPoint(Player curPlayer) {
+        System.out.println("Where you want to go?\n ");
+
+        return getPointFromUser();
+    }
+
+    public void printBoard(Board gameBoard) {
+        printRows(gameBoard);
+    }
+
+    public void alertUserThatPlayerNameIsNotUinque(String playerName) {
+        System.out.println("The name " + playerName + " already exists");
+        System.out.println("Please pick another one: ");
+    }
+
+    public int isUserWannaQuit(String playerName) {
+        boolean isValid = false;
+
+        printPlayerChoices(playerName);
+        checkIntValidation(isValid);
+
+        return scanner.nextInt();
+    }
+
+    public int getColorNumberForEach(int totalPlayers, int howManyColorsForEach) {
+        boolean isValid = false;
+
+        System.out.println("Each user can pick up to " + howManyColorsForEach + " colors");
+        System.out.println("Enter number of colors each player want to use");
+        checkIntValidation(isValid);
+
+        return scanner.nextInt();
+    }
+
+    public int getHumanPlayers(int totalPlayers) {
+        boolean isValid = false;
+
+        System.out.format("Enter the number of human players 0-%d%n", totalPlayers);
+        checkIntValidation(isValid);
+
+        return scanner.nextInt();
+    }
+
+    public String getName(int playerNumber) {
+        boolean isValid = false;
+
+        System.out.format("Please enter the %d' player name: ", playerNumber);
+        checkStringValidation(isValid);
+
+        return scanner.next();
+    }
+
+    private void checkStringValidation(boolean isValid) {
+        while (!isValid) {
+            if (scanner.hasNext()) {
+                isValid = true;
+            } else {
+                scanner.next();
+            }
+        }
+    }
+
+    private Point getPointFromUser() {
+        int rowNum = 0, colNum = 0;
+        rowNum = getRowNumFromUser(rowNum);
+        colNum = getColNumFromUser(colNum);
+
+        return new Point(rowNum, colNum);
+    }
+
+    private int getColNumFromUser(int colNum) {
+        boolean isValid = false;
+
+        System.out.println("Enter col number: ");
+        checkIntValidation(isValid);
+
+        return scanner.nextInt();
+    }
+
+    private int getRowNumFromUser(int rowNum) {
+        boolean isValid = false;
+
+        System.out.println("Enter row number: ");
+        checkIntValidation(isValid);
+
+        return scanner.nextInt();
+    }
+
+    private void greet(Player curPlayer) {
+        System.out.println("You are: " + curPlayer.getName() + "\nYour colors: ");
+        curPlayer.getColors().forEach((curColor) -> System.out.print(curColor.name() + ", "));
+        System.out.println("\nEnter the marble you want to play with:");
+    }
+
     private void printRows(Board gameBoard) {
-        for (int i = 0; i < ROWS; i++) 
+        for (int i = 0; i < ROWS; i++) {
             printRow(i, gameBoard);
+        }
     }
 
     private void printRow(int i, Board gameBoard) {
         Color color;
         System.out.print("\u001B[30m");
-        System.out.print((i+1));
-        if(i < 9)
+        System.out.print((i + 1));
+        if (i < 9) {
             System.out.print(" ");
+        }
 
         for (int j = 0; j < COLS; j++) {
             color = gameBoard.getColorByPoint(new Point(i, j));
             char chToPrint = getCharByColor(color);
-            printChar(chToPrint,color);
+            printChar(chToPrint, color);
         }
         System.out.println("");
     }
 
     private char getCharByColor(Color color) {
         char ch;
-        
-        switch(color)
-        {
+
+        switch (color) {
             case TRANSPARENT:
                 ch = ' ';
                 break;
@@ -153,8 +205,8 @@ public class UserInterface {
         return ch;
     }
 
-    private void printChar(char chToPrint,Color color) {
-        String coloredChar = getColoredChar(chToPrint,color);
+    private void printChar(char chToPrint, Color color) {
+        String coloredChar = getColoredChar(chToPrint, color);
         System.out.print(coloredChar);
     }
 
@@ -165,8 +217,7 @@ public class UserInterface {
 
     private int getColorValue(Color color) {
         int value;
-        switch(color)
-        {
+        switch (color) {
             case BLUE:
                 value = 34;
                 break;
@@ -189,14 +240,33 @@ public class UserInterface {
         return value;
     }
 
-    public void showPossibleMoves(ArrayList<Point> possibleMoves) {
-        System.out.println("Your possible moves are:");
-        possibleMoves.forEach((point)->System.out.format("{%s,%s},",point.x,point.y));
-        System.out.println("");
+    private void printPlayerChoices(String playerName) {
+        System.out.println(playerName + " what do you want to do now?");
+        System.out.println("1. Play your turn");
+        System.out.println("2. Save game");
+        System.out.println("3. Quit");
     }
 
-    public void alertUserThatPlayerNameIsNotUinque(String playerName) {
-        System.out.println("The name " + playerName + " already exists");
-        System.out.println("Please pick another one: ");
+    private int getValidChoice(int gameOptLength) {
+        int userChoice = -1;
+
+        do {
+            if (scanner.hasNextInt()) {
+                userChoice = scanner.nextInt();
+            }
+        } while (userChoice < 0 && userChoice > gameOptLength);
+
+        return userChoice;
     }
+
+    private void checkIntValidation(boolean isValid) {
+        while (!isValid) {
+            if (scanner.hasNextInt()) {
+                isValid = true;
+            } else {
+                scanner.next();
+            }
+        }
+    }
+
 }

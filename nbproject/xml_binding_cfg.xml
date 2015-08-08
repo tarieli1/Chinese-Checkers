@@ -4,7 +4,7 @@
 		<xjc-options>
 		</xjc-options>
 		<schema-sources>
-			<schema-source location='xml-resources/jaxb/chineseCheckerXML/chinese_checkers.xsd' origLocation='XML and XSD v1.0/chinese_checkers.xsd'/>
+			<schema-source location='xml-resources/jaxb/chineseCheckerXML/chinese_checkers.xsd' origLocation='../../../Downloads/XML and XSD v1.1/chinese_checkers.xsd'/>
 		</schema-sources>
 		<bindings>
 		</bindings>

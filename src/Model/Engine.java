@@ -3,6 +3,12 @@ package Model;
 import static Model.Board.COLS;
 import static Model.Board.ROWS;
 import Model.Player.Type;
+import generatedClasses.Cell;
+import generatedClasses.ChineseCheckers;
+import generatedClasses.ColorType;
+import generatedClasses.ColorType.Target;
+import generatedClasses.PlayerType;
+import generatedClasses.Players;
 import java.awt.Point;
 import java.util.*;
 
@@ -178,6 +184,10 @@ public class Engine {
         player.getPoints().add(end);
     }
 
+    public ArrayList<Player> getPlayers() {
+        return players;
+    }
+
     public boolean isGameOver() {
         return false;//TODO
     }
@@ -269,10 +279,14 @@ public class Engine {
         return validRow && validCol;
     }
 
-    private boolean isMarble(Color color) {
+    public boolean isMarble(Color color) {
         return  (color != Color.EMPTY && color != Color.TRANSPARENT);
     }
     
+    public void removePlayer(Player curPlayer) {
+        players.remove(curPlayer);
+    }
+
     public static class Settings {
         private int totalPlayers;
         private int colorNumber;
