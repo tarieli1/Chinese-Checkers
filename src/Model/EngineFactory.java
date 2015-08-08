@@ -15,8 +15,7 @@ import java.util.List;
 public abstract class EngineFactory {
     
     
-    public static Engine createEngine(ChineseCheckers savedGame)
-    {
+    public static Engine createEngine(ChineseCheckers savedGame){
         Engine.Settings savedGameSettings = createGameSettings(savedGame);
         Engine engine = new Engine(savedGameSettings);
         engine.setCurrentPlayerIndx(getCurrentPlayerIndx(savedGame));
@@ -26,14 +25,16 @@ public abstract class EngineFactory {
     }
     
     public static Point createGamePoint(Point p, Engine engine) {
-        int counter = 0;
-        for (int i = p.y; i >= 0; i--) {
+        int counter = 1;
+        int i = 0;
+        while( counter != p.y){
             Model.Color color = engine.getGameBoard().getColorByPoint(new Point(p.x, i));
-            if (color != Model.Color.TRANSPARENT) {
+            if (color != Model.Color.TRANSPARENT) 
                 counter++;
-            }
+               
+            ++i;
         }
-        return new Point(p.x + 1, counter);
+        return new Point(p.x - 1, i);
     }
 
     private static Engine.Settings createGameSettings(ChineseCheckers savedGame) {

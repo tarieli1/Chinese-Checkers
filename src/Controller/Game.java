@@ -10,6 +10,7 @@ import View.UserInterface;
 import generatedClasses.ChineseCheckers;
 import java.awt.Point;
 import java.util.*;
+import javafx.util.Pair;
 
 public class Game {
 
@@ -176,10 +177,11 @@ public class Game {
         Point start;
         Point playerStart = null;
         ArrayList<Point> possibleMoves;
-        ArrayList<Point> playerPoints;
-        playerPoints = convertBoardPointsToPoints(curPlayer.getPoints());
-        playerStart = validatePoint(playerStart, curPlayer, playerPoints, START);
+        HashMap<Point,ArrayList<Point>> playerPointsMap = curPlayer.getPossibleMoves();
+        ArrayList<Point> moveablePoints = getNotEmptyKeys(playerPointsMap);   
+        moveablePoints = convertBoardPointsToPoints(curPlayer.getPoints());
         do{
+            playerStart = validatePoint(playerStart, curPlayer, moveablePoints, START);
             start = EngineFactory.createGamePoint(playerStart, gameEngine);
             possibleMoves = gameEngine.getPossibleMovesForCurPlayerInPoint(start);
         } while (possibleMoves == null);
@@ -206,7 +208,7 @@ public class Game {
         Point playerEnd = null;
         do {
             playerEnd = validatePoint(playerEnd, curPlayer, null, END);
-            end = ChineseCheckersFactory.createSavedPoint(playerEnd, gameEngine);
+            end = EngineFactory.createGamePoint(playerEnd, gameEngine);
         } while (!gameEngine.isPossibleMove(start, end));
         return end;
     }
@@ -291,6 +293,16 @@ public class Game {
         }
 
         return isFileLoaded;
+    }
+
+    private ArrayList<Point> getNotEmptyKeys(HashMap<Point, ArrayList<Point>> playerPointsMap) {
+        ArrayList<Point> notEmptyKeys = new ArrayList<>();
+
+        for (Point key : playerPointsMap.keySet()) {
+            if(!playerPointsMap.get(key).isEmpty())
+                notEmptyKeys.add(key);
+        }
+        return notEmptyKeys;
     }
 
 }

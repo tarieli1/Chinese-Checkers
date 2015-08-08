@@ -6,7 +6,6 @@
 package Model;
 
 import generatedClasses.ChineseCheckers;
-import generatedClasses.Players;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
