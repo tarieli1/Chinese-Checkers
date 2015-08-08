@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<chinese_checkers current_player="1">
+    <players>
+        <player type="HUMAN" name="1">
+            <colorDef color="GREEN">
+                <target row="17" col="1"/>
+            </colorDef>
+            <colorDef color="WHITE">
+                <target row="13" col="1"/>
+            </colorDef>
+        </player>
+        <player type="HUMAN" name="2">
+            <colorDef color="YELLOW">
+                <target row="1" col="1"/>
+            </colorDef>
+            <colorDef color="BLUE">
+                <target row="5" col="13"/>
+            </colorDef>
+        </player>
+    </players>
+    <board>
+        <cell color="GREEN" row="1" col="1"/>
+        <cell color="GREEN" row="2" col="1"/>
+        <cell color="GREEN" row="2" col="2"/>
+        <cell color="GREEN" row="3" col="1"/>
+        <cell color="GREEN" row="3" col="2"/>
+        <cell color="GREEN" row="3" col="3"/>
+        <cell color="GREEN" row="4" col="1"/>
+        <cell color="GREEN" row="4" col="2"/>
+        <cell color="GREEN" row="4" col="3"/>
+        <cell color="GREEN" row="4" col="4"/>
+        <cell color="WHITE" row="5" col="10"/>
+        <cell color="WHITE" row="5" col="11"/>
+        <cell color="WHITE" row="5" col="12"/>
+        <cell color="WHITE" row="5" col="13"/>
+        <cell color="WHITE" row="6" col="10"/>
+        <cell color="WHITE" row="6" col="11"/>
+        <cell color="WHITE" row="6" col="12"/>
+        <cell color="WHITE" row="7" col="10"/>
+        <cell color="WHITE" row="7" col="11"/>
+        <cell color="WHITE" row="8" col="10"/>
+        <cell color="BLUE" row="10" col="1"/>
+        <cell color="BLUE" row="11" col="1"/>
+        <cell color="BLUE" row="11" col="2"/>
+        <cell color="BLUE" row="12" col="1"/>
+        <cell color="BLUE" row="12" col="2"/>
+        <cell color="BLUE" row="12" col="3"/>
+        <cell color="BLUE" row="13" col="1"/>
+        <cell color="BLUE" row="13" col="2"/>
+        <cell color="BLUE" row="13" col="3"/>
+        <cell color="BLUE" row="13" col="4"/>
+        <cell color="YELLOW" row="14" col="1"/>
+        <cell color="YELLOW" row="14" col="2"/>
+        <cell color="YELLOW" row="14" col="3"/>
+        <cell color="YELLOW" row="14" col="4"/>
+        <cell color="YELLOW" row="15" col="1"/>
+        <cell color="YELLOW" row="15" col="2"/>
+        <cell color="YELLOW" row="15" col="3"/>
+        <cell color="YELLOW" row="16" col="1"/>
+        <cell color="YELLOW" row="16" col="2"/>
+        <cell color="YELLOW" row="17" col="1"/>
+    </board>
+</chinese_checkers>

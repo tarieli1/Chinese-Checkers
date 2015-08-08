@@ -6,9 +6,11 @@ import generatedClasses.Cell;
 import generatedClasses.ChineseCheckers;
 import generatedClasses.Color;
 import generatedClasses.ColorType;
+import generatedClasses.ColorType.Target;
 import generatedClasses.PlayerType;
 import generatedClasses.Players;
 import java.awt.Point;
+import java.util.ArrayList;
 import java.util.List;
 
 public abstract class ChineseCheckersFactory {
@@ -21,7 +23,7 @@ public abstract class ChineseCheckersFactory {
         return savedGame;
     }
 
-    public static Point createSavedPoint(Point p, Model.Board board) {
+    public static Point createSavedGamePoint(Point p, Model.Board board) {
         int counter = 0;
         for (int i = 0; i <= p.y; i++) {
             Model.Color color = board.getColorByPoint(new Point(p.x, i));
@@ -46,17 +48,16 @@ public abstract class ChineseCheckersFactory {
         savedPlayer.setName(player.getName());
         savedPlayer.setType(createSavedGameType(player.getType()));
         List<ColorType> colorList = savedPlayer.getColorDef();
-        for (Model.Color color : player.getColors()) {
-            colorList.add(createSavedGameColorType(color));
+        ArrayList<Point> targets = player.getTargets();
+        ArrayList<Model.Color> colors = player.getColors();
+        
+        for (int i = 0; i < player.getColors().size(); i++) {
+            Model.Color color = colors.get(i);
+            Point target = targets.get(i);
+            colorList.add(createSavedGameColorType(color,target));
         }
 
         return savedPlayer;
-    }
-
-    private static void convertTargetToSaveGameTarget(ColorType savedColor) {
-        ColorType.Target tgt = savedColor.getTarget();
-        tgt.setCol(1);//TODO
-        tgt.setRow(2);//TODO
     }
 
     private static Color createSavedColorFromColor(Model.Color color) {
@@ -84,13 +85,22 @@ public abstract class ChineseCheckersFactory {
         return res;
     }
 
-    private static ColorType createSavedGameColorType(Model.Color color) {
+    private static ColorType createSavedGameColorType(Model.Color color , Point target) {
         ColorType savedColor = new ColorType();
+        savedColor.setTarget(createSavedGameTarget(target));
         savedColor.setColor(createSavedColorFromColor(color));
-        convertTargetToSaveGameTarget(savedColor);
+
         return savedColor;
     }
-
+    
+    private static Target createSavedGameTarget(Point target) {
+        Target savedGameTarget = new Target();
+        
+        savedGameTarget.setCol(target.y);//TODO
+        savedGameTarget.setRow(target.x);//TODO
+        return savedGameTarget;
+    }
+    
     private static PlayerType createSavedGameType(Type type) {
         if (type == Player.Type.COMPUTER) {
             return PlayerType.COMPUTER;
@@ -101,7 +111,7 @@ public abstract class ChineseCheckersFactory {
 
     private static Cell createSavedCell(int i, int j, Model.Color curColor, Model.Board board) {
         Cell savedCell = new Cell();
-        Point savedPoint = createSavedPoint(new Point(i, j), board);
+        Point savedPoint = createSavedGamePoint(new Point(i, j), board);
         savedCell.setRow(savedPoint.x);
         savedCell.setCol(savedPoint.y);
         savedCell.setColor(createSavedColorFromColor(curColor));

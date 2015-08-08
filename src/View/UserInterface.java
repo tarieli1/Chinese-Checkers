@@ -13,7 +13,6 @@ import java.util.Scanner;
 public class UserInterface {
 
     private final Scanner scanner = new Scanner(System.in);
-    private boolean isRunning = true;
 
     public gameOption getGameOption() {
         System.out.println("Pick your option:");
@@ -36,10 +35,6 @@ public class UserInterface {
     public void showPlayerAiMove(Point start, Point end) {
 
         System.out.format("Computer moved from (%s,%s) to (%s,%s) \n", start.x, start.y, end.x, end.y);
-    }
-
-    public boolean isRunning() {
-        return isRunning;
     }
 
     public void clearPlayerPointsFromBoard(ArrayList<Point> pointsToRemove, Board board) {
@@ -118,7 +113,7 @@ public class UserInterface {
 
         return scanner.next();
     }
-    //Tamir King
+
     private void checkStringValidation(boolean isValid) {
         while (!isValid) {
             if (scanner.hasNext()) {
@@ -155,7 +150,7 @@ public class UserInterface {
 
         return scanner.nextInt();
     }
-    //Tamir King
+
     private void greet(Player curPlayer) {
         System.out.println("\nYou are: " + curPlayer.getName() + "\nYour colors: ");
         curPlayer.getColors().forEach((curColor) -> System.out.print(curColor.name() + ", "));
@@ -254,7 +249,7 @@ public class UserInterface {
 
         return userChoice;
     }
-    //Tamir King
+
     private void checkIntValidation(boolean isValid) {
         while (!isValid) {
             if (scanner.hasNextInt()) {
@@ -288,8 +283,8 @@ public class UserInterface {
         return scanner.next();
     }
 
-    public void showExceptionToUser(Exception ex) {
-        System.out.println(ex.getMessage());
+    public void showErrorToUser(String err) {
+        System.out.println(err);
     }
 
     public int checkIfUserWantToLoadGameOrPlayNewGame() {
@@ -306,13 +301,20 @@ public class UserInterface {
         System.out.println("1. Play New Game");
         System.out.println("2. Load Game");
     }
-    //Tamir King
+
     public void printErrorMsgToUserAboutInvalidNumberInput(int minInput, int maxInput) {
         System.out.println("YOU HAVE ENTERED A WRONG NUMBER");
         System.out.format("NUMBERS SHOULD BE: (%d-%d) \n", minInput, maxInput);
     }
-    //Tamir King
+
     public void printInvalidPoint(Point start) {
         System.out.format("The Marble: (%d,%d) is not yours", start.x, start.y);
+    }
+    
+    public void printWinnerGame(String winnerName) {
+        for (int i = 0; i < 10; i++)
+            System.out.println("");
+        System.out.println("WOOOOHHHHOOOO " + winnerName + " YOU WON THE GAME!!!");
+        System.out.println("CONGRATULATIONS!!!!");
     }
 }

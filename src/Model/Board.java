@@ -54,22 +54,25 @@ import java.util.*;
         return cellLine;
     }
 
-    void removeColors(Stack<Color> colorStack) {
+    void removeColors(ArrayList<Color> colorsToRemove) {
         for (int i = 0; i < ROWS; i++) {
             for (int j = 0; j < COLS; j++) {
-                removeColorFromBoard(i, j, colorStack);
+                removeColorFromBoard(i, j, colorsToRemove);
             }
         }
     }
 
-    private void removeColorFromBoard(int i, int j, Stack<Color> colorStack) {
+    private void removeColorFromBoard(int i, int j, ArrayList<Color> colorsToRemove) {
         Color color = getColorByPoint(new Point(i, j));
-        if(colorStack.contains(color))
+        if(colorsToRemove.contains(color))
             board[i][j].color = Color.EMPTY;
     }
 
     void makeEmpty() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        for (int i = 0; i < ROWS; i++) 
+            for (int j = 0; j < COLS; j++) 
+                if (board[i][j].color != Color.TRANSPARENT) 
+                    board[i][j].color = Color.EMPTY;
     }
 
      private static class Cell {
