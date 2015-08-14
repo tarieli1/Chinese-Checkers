@@ -15,6 +15,10 @@ public class Engine {
     private final Stack<Pair<Color, Color>> colorStack = new Stack<>();
     private final TargetMapper targetMap = new TargetMapper();
 
+    public TargetMapper getTargetMap() {
+        return targetMap;
+    }
+
     public Engine(Settings gameSettings) {
         init(gameSettings);
     }
@@ -32,19 +36,12 @@ public class Engine {
         createTheColorStack();
     }
 
-    private void createTheColorStack() {
-        colorStack.clear();
-        colorStack.add(new Pair(Color.RED, Color.BLACK));
-        colorStack.add(new Pair(Color.WHITE, Color.BLUE));
-        colorStack.add(new Pair(Color.GREEN, Color.YELLOW));
-    }
-
     private void createPlayers(Settings gameSettings) {
         players.clear();
         List<String> playerNames = gameSettings.playerNames;
         int AINum = gameSettings.totalPlayers - gameSettings.humanPlayers;
         for (int i = 0; i < gameSettings.humanPlayers; i++) {
-            players.add(new Player(playerNames.get(i), Type.Player));
+            players.add(new Player(playerNames.get(i), Type.PLAYER));
         }
         //Create em AIs
         for (int i = 0; i < AINum; i++) {
@@ -73,25 +70,21 @@ public class Engine {
 
         int numPlayer = gameSettings.totalPlayers;
         int colorsEach = gameSettings.colorNumber;
-        Pair<Color, Color> targetsColors;
-        Color firstColor, secondColor;
-        Player firstPlayer, secondPlayer;
 
-        for (int i = 0; i < numPlayer * colorsEach; i += 2) {
-            targetsColors = colorStack.pop();
-            firstColor = targetsColors.getKey();
-            secondColor = targetsColors.getValue();
-            int j = i % numPlayer;
-            firstPlayer = players.get(j);
-            j = (i + 1) % numPlayer;
-            secondPlayer = players.get(j);
-
-            firstPlayer.getColors().add(firstColor);
-            firstPlayer.getTargets().add(targetMap.colorToVertex.get(secondColor));
-            secondPlayer.getColors().add(secondColor);
-            secondPlayer.getTargets().add(targetMap.colorToVertex.get(firstColor));
-
+        for (int i = 0; i < colorsEach; i++) {
+            for (int j = 0; j < numPlayer; j++) {
+                initColorToPlayer(j);
+            }
         }
+    }
+
+    private void initColorToPlayer(int j) {
+        Player curPlayer = players.get(j);
+        Pair<Color, Color> colorAndTarget = colorStack.pop();
+        Color playerColor = colorAndTarget.getValue();
+        Color playerTargetColor = colorAndTarget.getKey();
+        curPlayer.getColors().add(playerColor);
+        curPlayer.getTargets().add(targetMap.getColorToVertex().get(playerTargetColor));
     }
 
     private void initializeTargetMapper() {
@@ -123,7 +116,7 @@ public class Engine {
         setPossibleMovesForPlayer(getCurrentPlayer());
     }
 
-    private void setPossibleMovesForPlayer(Player player) {
+    void setPossibleMovesForPlayer(Player player) {
         ArrayList<Point> points = player.getPoints();
         HashMap<Point, ArrayList<Point>> possibleMoves = new HashMap<>();
 
@@ -147,6 +140,16 @@ public class Engine {
 
     public Board getGameBoard() {
         return gameBoard;
+    }
+
+    private void createTheColorStack() {
+        colorStack.clear();
+        colorStack.add(new Pair(Color.RED, Color.BLACK));
+        colorStack.add(new Pair(Color.BLACK, Color.RED));
+        colorStack.add(new Pair(Color.WHITE, Color.BLUE));
+        colorStack.add(new Pair(Color.BLUE, Color.WHITE));
+        colorStack.add(new Pair(Color.GREEN, Color.YELLOW));
+        colorStack.add(new Pair(Color.YELLOW, Color.GREEN));
     }
 
     public ArrayList<Point> getPossibleMovesForCurPlayerInPoint(Point start) {
@@ -215,10 +218,15 @@ public class Engine {
         }
     }
 
-    public void doIteration(Point start, Point end) {
+    public boolean doIteration(Point start, Point end) {
+        boolean isGameOver;
         updateGameBoard(start, end);
-        updatePlayerPoints(start, end);
-        switchToNextPlayer();
+        isGameOver = updatePlayerPoints(start, end);
+
+        if (!isGameOver) {
+            switchToNextPlayer();
+        }
+        return isGameOver;
     }
 
     private void updateGameBoard(Point start, Point end) {
@@ -227,48 +235,62 @@ public class Engine {
         gameBoard.setColorByPoint(start, Color.EMPTY);
     }
 
-    private void updatePlayerPoints(Point start, Point end) {
+    private boolean updatePlayerPoints(Point start, Point end) {
         Player player = getCurrentPlayer();
         player.getPoints().remove(start);
         player.getPoints().add(end);
+        return checkIfGameOver(player);
     }
 
     public ArrayList<Player> getPlayers() {
         return players;
     }
 
-    public ArrayList<Point> doAiIteration() {
+    public Pair<Boolean,ArrayList<Point>> doAiIteration() {
+        
         Player Ai = getCurrentPlayer();
-        ArrayList<Point> result = new ArrayList<>();
-        ArrayList<Point> startPoints = Ai.getPoints();
+        ArrayList<Point> aiMove = new ArrayList<>();
+
         HashMap<Point, ArrayList<Point>> possibleMoves = Ai.getPossibleMoves();
-        Point randStartingPoint;
-        do {
-            randStartingPoint = getRandomPointInList(startPoints);
-        } while (possibleMoves.get(randStartingPoint).isEmpty());
+        Pair<Point, Point> bestMove = getBestAIMove(possibleMoves);
 
-        Point start = randStartingPoint;
-        Point end = getRandomPointInList(possibleMoves.get(start));
-        doIteration(start, end);
-        result.add(start);
-        result.add(end);
-        return result;
+        Point start = bestMove.getKey();
+        Point end = bestMove.getValue();
+        Boolean res = doIteration(start, end);
+        aiMove.add(start);
+        aiMove.add(end);
+        
+        return new Pair<>(res,aiMove);
     }
 
-    private Point getRandomPointInList(ArrayList<Point> startPoints) {
-        Point randStartingPoint;
-        int randStartingPointIdx = getRandomValidPointIndx(startPoints.size());
-        randStartingPoint = startPoints.get(randStartingPointIdx);
-        return randStartingPoint;
+    private Pair<Point, Point> getBestAIMove(HashMap<Point, ArrayList<Point>> possibleMoves) {
+        Pair<Point, Point> bestAIMove = null;
+        Double bestMoveScore = 0.0;
+        Point target = null;
+        if(!getCurrentPlayer().isFinish()){
+            for (Point moveStart : possibleMoves.keySet()) {
+                for (Point moveEnd : possibleMoves.get(moveStart)) {
+                    target = getTargetPoint(moveStart);
+                    Point gameTarget = EngineFactory.createGamePoint(target, gameBoard);
+                    double curMoveScore = getMoveScore(moveStart, moveEnd, gameTarget);
+                    if (curMoveScore > bestMoveScore) {
+                        bestAIMove = new Pair<>(moveStart, moveEnd);
+                        bestMoveScore = curMoveScore;
+                    }
+                }
+            }
+        }       
+        if (bestAIMove == null) {
+            bestAIMove = finish(possibleMoves);
+        }
+        return bestAIMove;
     }
 
-    private int getRandomValidPointIndx(int size) {
-
-        int min = 0;
-        int max = size - 1;
-        int range = (max - min) + 1;
-        int randStartingPointIdx = (int) (Math.random() * range);
-        return randStartingPointIdx;
+    private Point getTargetPoint(Point moveStart) {
+        Color pointColor = gameBoard.getColorByPoint(moveStart);
+        int targetIndex = getCurrentPlayer().getColors().indexOf(pointColor);
+        Point target = getCurrentPlayer().getTargets().get(targetIndex);
+        return target;
     }
 
     private Point getNextPointByDirection(Point start, Direction direction) {
@@ -330,7 +352,9 @@ public class Engine {
             gameBoard.setColorByPoint(pointToRemove, Color.EMPTY);
         }
         players.remove(quitedPlayer);
-        setPossibleMovesForPlayer(getCurrentPlayer());
+        if (players.size() != 1) {
+            setPossibleMovesForPlayer(getCurrentPlayer());
+        }
 
         return players.size() == 1;
     }
@@ -339,7 +363,6 @@ public class Engine {
         ArrayList<Color> colorsInStack = new ArrayList<>();
         for (Pair<Color, Color> pair : colorStack) {
             colorsInStack.add(pair.getKey());
-            colorsInStack.add(pair.getValue());
         }
         return colorsInStack;
     }
@@ -347,22 +370,94 @@ public class Engine {
     private void updateTarget(HashMap<Color, ArrayList<Point>> boardMap) {
         Set<Color> colors = boardMap.keySet();
         for (Color color : colors) {
-            targetMap.updateTargetMap(color, boardMap.get(color),gameBoard);
+            targetMap.updateTargetMap(color, boardMap.get(color), gameBoard);
         }
     }
 
     private void addPointToMap(int i, int j, HashMap<Color, ArrayList<Point>> boardMap) {
         Point curPoint = new Point(i, j);
         Color color = gameBoard.getColorByPoint(curPoint);
-        if (isMarble(color)){
-            
+        if (isMarble(color)) {
+
             if (boardMap.get(color) == null) {
-                boardMap.put(color, new ArrayList<>());}
-            
+                boardMap.put(color, new ArrayList<>());
+            }
+
             boardMap.get(color).add(curPoint);
-            
+
         }
-       
+
+    }
+
+    private boolean checkIfGameOver(Player player) {
+        ArrayList<Point> targets;
+        boolean isGameOver = false;
+        int counter = 0;
+        int size = player.getTargets().size();
+
+        for (int i = 0; i < size; i++) {
+            Point target = player.getTargets().get(i);
+            targets = targetMap.getVertexToSet().get(target);
+            for (int j = 0; j < 10; j++) {
+                if (player.getPoints().contains(targets.get(j))) {
+                    counter++;
+                }
+                if (counter == 10 * size) {
+                    isGameOver = true;
+                }
+
+            }
+        }
+
+        return isGameOver;
+    }
+
+    private double getMoveScore(Point moveStart, Point moveEnd, Point target) {
+        double moveScore;
+
+        double startScore = moveStart.distance(target);
+        double endScore = moveEnd.distance(target);
+
+        moveScore = startScore - endScore;
+        return moveScore;
+    }
+
+    private Pair<Point, Point> finish(HashMap<Point, ArrayList<Point>> possibleMoves) {
+        Pair<Point, Point> bestAIMove = null;
+        Double bestMoveScore = null;
+
+
+        ArrayList<Point> playerPoints = getCurrentPlayer().getPoints();
+        getCurrentPlayer().setIsFinish(true);
+        for (Point startPoint : playerPoints) {
+            Point target = getTargetPoint(startPoint);
+            ArrayList<Point> targets = targetMap.getVertexToSet().get(target);
+            if (!targets.contains(startPoint)) {
+                Point newTarget = getEmptyTarget(targets, playerPoints);
+                
+                for (Point endPoint : possibleMoves.get(startPoint)) {
+                    double curMoveScore = getMoveScore(startPoint, endPoint, newTarget);
+                    if (bestMoveScore == null || bestMoveScore < curMoveScore) {
+                        bestAIMove = new Pair<>(startPoint, endPoint);
+                        bestMoveScore = curMoveScore;
+                    }
+                }
+            }
+        }
+
+        return bestAIMove;
+    }
+
+    private Point getEmptyTarget(ArrayList<Point> targets, ArrayList<Point> playerPoints) {
+        Point emptyTarget = null;
+
+        for (Point target : targets) {
+            if (emptyTarget == null || !playerPoints.contains(target)) {
+                emptyTarget = target;
+            }
+        }
+
+        return emptyTarget;
     }
 
     public static class Settings {

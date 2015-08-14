@@ -10,6 +10,7 @@ import View.UserInterface;
 import generatedClasses.ChineseCheckers;
 import java.awt.Point;
 import java.util.*;
+import javafx.util.Pair;
 
 public class Game {
 
@@ -18,19 +19,28 @@ public class Game {
     private static final int MAX_PLAYERS = 6;
     private static final int MIN_PLAYERS = 2;
     private static final int PLAY_TURN = 1;
-    private static final int SAVE_GAME = 2;
     private static final int QUIT = 3;
+    private static final int SAVE = 2;
+    private static final int SAVE_AS = 1;
     private static final int START = 1;
     private static final int END = 2;
+    private static final int NEW_GAME = 1;
+    private static final int LOAD_GAME = 2;
+    private static final int FIRST_PLAYER = 0;
+    private static final int MIN_HUMAN = 0;
+    private static final int MAX_ROW = 17;
+    private static final int MAX_COL = 13;
+    private static final int MIN_COL_ROW = 1;
+    private static final int MIN_COLOR_NUM = 1;
     private String saveGamePath = null;
 
     public void Run() {
         int userChoice = UI.checkIfUserWantToLoadGameOrPlayNewGame();
-        while (userChoice < 1 || userChoice > 2) {
-            UI.printErrorMsgToUserAboutInvalidNumberInput(1, 2);
+        while (userChoice < NEW_GAME || userChoice > LOAD_GAME) {
+            UI.printErrorMsgToUserAboutInvalidNumberInput(NEW_GAME, LOAD_GAME);
             userChoice = UI.checkIfUserWantToLoadGameOrPlayNewGame();
         }
-        if (userChoice == 1) {
+        if (userChoice == NEW_GAME) {
             createNewGame();
         } else {
             loadGame(UI.getPathFromUser());
@@ -54,13 +64,24 @@ public class Game {
         while (!isGameOver) {
             isGameOver = doIteration();
         }
-        if (isGameOver) {
-            UI.printWinnerGame(gameEngine.getPlayers().get(0).getName());
+        if(isGameOver){
+            UI.printBoard(gameEngine.getGameBoard());
+            printWinnerName();
         }
     }
 
+    private void printWinnerName() {
+        String winnerName;
+        if(gameEngine.getPlayers().size() == 1)
+            winnerName = gameEngine.getPlayers().get(FIRST_PLAYER).getName();
+        else
+            winnerName = gameEngine.getCurrentPlayer().getName();
+        UI.printWinnerGame(winnerName);
+    }
+
     private void newGame(Engine.Settings gameSettings) {
-        gameOption option = UI.getGameOption();
+        GameOption option = getValidGameOption();
+
         switch (option) {
             case NewGame:
                 gameSettings = getGameSettings();
@@ -71,6 +92,22 @@ public class Game {
             default:
                 break;
         }
+    }
+
+    private GameOption getValidGameOption() {
+        int userChoice = getValidUserChoice();
+        GameOption[] options = GameOption.values();
+        GameOption option = options[userChoice - 1];
+        return option;
+    }
+
+    private int getValidUserChoice() {
+        int userChoice = UI.getGameOption();
+        while (userChoice < START || userChoice > QUIT) {
+            UI.printErrorMsgToUserAboutInvalidNumberInput(START,QUIT);
+            userChoice = UI.getGameOption();
+        }
+        return userChoice;
     }
 
     private Engine.Settings getGameSettings() {
@@ -112,8 +149,8 @@ public class Game {
 
     private void initHumanPlayers(int totalPlayers, Engine.Settings gameSettings) {
         int humanPlayers = UI.getHumanPlayers(totalPlayers);
-        while (humanPlayers < 0 || humanPlayers > totalPlayers) {
-            UI.printErrorMsgToUserAboutInvalidNumberInput(0, totalPlayers);
+        while (humanPlayers < MIN_HUMAN || humanPlayers > totalPlayers) {
+            UI.printErrorMsgToUserAboutInvalidNumberInput(MIN_HUMAN, totalPlayers);
             humanPlayers = UI.getHumanPlayers(totalPlayers);
         }
         gameSettings.setHumanPlayers(humanPlayers);
@@ -122,8 +159,8 @@ public class Game {
     private void initColorNumber(int totalPlayers, Engine.Settings gameSettings) {
         int numOfMaxColorsForEach = MAX_PLAYERS / totalPlayers;
         int colorNumber = UI.getColorNumberForEach(totalPlayers, numOfMaxColorsForEach);;
-        while (colorNumber < 1 || colorNumber > numOfMaxColorsForEach) {
-            UI.printErrorMsgToUserAboutInvalidNumberInput(1, numOfMaxColorsForEach);
+        while (colorNumber < MIN_COLOR_NUM || colorNumber > numOfMaxColorsForEach) {
+            UI.printErrorMsgToUserAboutInvalidNumberInput(MIN_COLOR_NUM, numOfMaxColorsForEach);
             colorNumber = UI.getColorNumberForEach(totalPlayers, numOfMaxColorsForEach);
         }
         gameSettings.setColorNumber(colorNumber);
@@ -134,7 +171,7 @@ public class Game {
         UI.printBoard(gameEngine.getGameBoard());
         Player curPlayer = gameEngine.getCurrentPlayer();
         if (curPlayer.getType() == Type.COMPUTER) {
-            doAiIteration();
+            isGameOver = doAiIteration();
         } else if (doPlayerIteration(curPlayer)) {
             isGameOver = true;
         }
@@ -142,20 +179,21 @@ public class Game {
         return isGameOver;
     }
 
-    private void doAiIteration() {
+    private boolean doAiIteration() {
         Point start, end;
-        ArrayList<Point> usedPoints;
-        usedPoints = gameEngine.doAiIteration();
+        Pair<Boolean,ArrayList<Point>> iterationResult;
+        iterationResult = gameEngine.doAiIteration();
+        ArrayList<Point> usedPoints = iterationResult.getValue();
         start = ChineseCheckersFactory.createSavedGamePoint(usedPoints.get(0), gameEngine.getGameBoard());
         end = ChineseCheckersFactory.createSavedGamePoint(usedPoints.get(1), gameEngine.getGameBoard());
         UI.showPlayerAiMove(start, end);
+        return iterationResult.getKey();
     }
 
     private boolean doPlayerIteration(Player curPlayer) {
-        Point start, end;
         int userChoice = UI.isUserWannaQuit(curPlayer.getName());
-        while (userChoice < 1 || userChoice > 3) {
-            UI.printErrorMsgToUserAboutInvalidNumberInput(1, 3);
+        while (userChoice < PLAY_TURN || userChoice > QUIT) {
+            UI.printErrorMsgToUserAboutInvalidNumberInput(PLAY_TURN, QUIT);
             userChoice = UI.isUserWannaQuit(curPlayer.getName());
         }
         return makeTheUserChoice(userChoice, curPlayer);
@@ -164,7 +202,7 @@ public class Game {
     private boolean makeTheUserChoice(int userChoice, Player curPlayer) {
         boolean isGameOver = false;
         if (userChoice == PLAY_TURN) {
-            getPointsForStartingIteration(curPlayer);
+            isGameOver = getPointsAndStartIteration(curPlayer);
         } else if (userChoice == QUIT) {
             isGameOver = gameEngine.userQuited(curPlayer);
         } else {
@@ -174,14 +212,13 @@ public class Game {
         return isGameOver;
     }
 
-    private void getPointsForStartingIteration(Player curPlayer) {
+    private boolean getPointsAndStartIteration(Player curPlayer) {
         Point start;
         Point end;
         start = getValidStartingPoint(curPlayer);
 
         end = getValidEndPoint(start, curPlayer);
-        gameEngine.doIteration(start, end);
-
+        return gameEngine.doIteration(start, end);
     }
 
     private Point getValidStartingPoint(Player curPlayer) {
@@ -207,14 +244,16 @@ public class Game {
 
     private Point validatePoint(Player curPlayer, ArrayList<Point> playerP, int whichPoint) {
         Point playerStart;
-        boolean validPlayerStart;
+        boolean isValidRow, isValidCol, validPlayerStart;
         do {
             if (whichPoint == START) {
                 playerStart = UI.getStartPoint(curPlayer, playerP);
             } else {
                 playerStart = UI.getEndPoint(curPlayer);
             }
-            validPlayerStart = playerStart.x < 1 || playerStart.x > 17 || playerStart.y < 1 || playerStart.y > 17;
+            isValidRow = playerStart.x < MIN_COL_ROW || playerStart.x > MAX_ROW;
+            isValidCol = playerStart.y < MIN_COL_ROW || playerStart.y > MAX_COL;
+            validPlayerStart = isValidCol || isValidRow;
             if (validPlayerStart) {
                 UI.printInvalidPoint(playerStart);
             }
@@ -225,12 +264,12 @@ public class Game {
 
     private Point getValidEndPoint(Point start, Player curPlayer) {
         Point end;
-        Point playerEnd = null;
+        Point playerEnd;
         do {
             playerEnd = validatePoint(curPlayer, null, END);
             end = EngineFactory.createGamePoint(playerEnd, gameEngine.getGameBoard());
             if (!gameEngine.isPossibleMove(start, end)) {
-                UI.printInvalidPoint(end);
+                UI.printInvalidPoint(playerEnd);
             }
         } while (!gameEngine.isPossibleMove(start, end));
         return end;
@@ -238,7 +277,7 @@ public class Game {
 
     public int getTotalPlayers() {
         int totalPlayers = UI.getTotalPlayers();
-        while (totalPlayers > 6 || totalPlayers < 2) {
+        while (totalPlayers > MAX_PLAYERS || totalPlayers < MIN_PLAYERS) {
             UI.printErrorMsgToUserAboutInvalidNumberInput(MIN_PLAYERS, MAX_PLAYERS);
             totalPlayers = UI.getTotalPlayers();
         }
@@ -259,21 +298,23 @@ public class Game {
         boolean isSavedGame = false;
         String path = null;
 
-        userChoice = getValidUserChoice();
+        userChoice = getValidUserChoiceToSave();
 
         while (!isSavedGame) {
-            if (userChoice == 1 || !isSaveGamePathExists()) {
+            if (userChoice == SAVE_AS || !isSaveGamePathExists()) {
                 path = UI.getPathFromUser();
+            } else {
+                path = saveGamePath;
             }
             isSavedGame = tryToSaveGame(path);
         }
     }
 
-    private int getValidUserChoice() {
+    private int getValidUserChoiceToSave() {
         int userChoice;
         do {
             userChoice = UI.checkIfUserWantToSaveAsOrJustSave();
-        } while (userChoice < 1 || userChoice > 2);
+        } while (userChoice < SAVE_AS || userChoice > SAVE);
         return userChoice;
     }
 
@@ -284,7 +325,7 @@ public class Game {
             ChineseCheckers savedGame = ChineseCheckersFactory.createSavedGameObject(gameEngine);
             FileManager.saveGame(path, savedGame);
         } catch (Exception e) {
-            UI.showErrorToUser("Could not save game, Please try agin with diffrent path.");
+            UI.showErrorToUser("Could not save game, Please try again with diffrent path.");
             isFileSaved = false;
         }
 
@@ -303,19 +344,28 @@ public class Game {
         boolean isFileLoaded = false;
 
         while (!isFileLoaded) {
-            isFileLoaded = tryToLoadGame(path, isFileLoaded);
+            isFileLoaded = tryToLoadGame(path);
             if (!isFileLoaded) {
                 path = UI.getPathFromUser();
             }
         }
+        play();
     }
 
-    private boolean tryToLoadGame(String path, boolean isFileLoaded) {
+    private boolean tryToLoadGame(String path) {
+        boolean isFileLoaded;
         try {
             ChineseCheckers savedGame = FileManager.loadGame(path);
             gameEngine = EngineFactory.createEngine(savedGame);
+            isFileLoaded = true;
         } catch (Exception ex) {
-            UI.showErrorToUser("Could not load file, Please try agin with diffrent path.");
+            String msg;
+            if (ex.getMessage() == null) {
+                msg = "Invalid path, try again";
+            } else {
+                msg = ex.getMessage();
+            }
+            UI.showErrorToUser(msg);
             isFileLoaded = false;
         }
 

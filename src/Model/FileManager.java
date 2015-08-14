@@ -20,45 +20,41 @@ import javax.xml.bind.Marshaller;
 import javax.xml.bind.PropertyException;
 import javax.xml.bind.Unmarshaller;
 
- public abstract class FileManager {
-    
-    public static ArrayList<String> readLinesFromFile(String path) throws FileNotFoundException, IOException{
+public abstract class FileManager {
+
+    public static ArrayList<String> readLinesFromFile(String path) throws FileNotFoundException, IOException {
         ArrayList<String> lines = new ArrayList();
-        
+
         FileReader fileReader = new FileReader(path);
         BufferedReader bufferedReader = new BufferedReader(fileReader);
-        
+
         String line;
-        while((line = bufferedReader.readLine()) != null){
+        while ((line = bufferedReader.readLine()) != null) {
             lines.add(line);
         }
         return lines;
     }
-    
-    public static ChineseCheckers loadGame(String path){
-        ChineseCheckers cc = null; 
-        try {
-            JAXBContext jc = JAXBContext.newInstance(ChineseCheckers.class);
-            Unmarshaller u = jc.createUnmarshaller();
- 
-            File f = new File(path);
-            cc = (ChineseCheckers) u.unmarshal(f);
 
-        } catch (JAXBException ex) {
-            Logger.getLogger(FileManager.class.getName()).log(Level.SEVERE, null, ex);
+    public static ChineseCheckers loadGame(String path) throws Exception {
+        ChineseCheckers cc;
 
-        }
+        JAXBContext jc = JAXBContext.newInstance(ChineseCheckers.class);
+        Unmarshaller u = jc.createUnmarshaller();
+
+        File f = new File(path);
+        cc = (ChineseCheckers) u.unmarshal(f);
+
         return cc;
     }
-    
-    public static void saveGame(String path,ChineseCheckers savedGame){
+
+    public static void saveGame(String path, ChineseCheckers savedGame) {
         try {
             JAXBContext context = JAXBContext.newInstance(ChineseCheckers.class);
-            
+
             Marshaller m = context.createMarshaller();
             m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
-            
-             File f = new File(path);
+
+            File f = new File(path);
             m.marshal(savedGame, f);
         } catch (PropertyException ex) {
             Logger.getLogger(FileManager.class.getName()).log(Level.SEVERE, null, ex);

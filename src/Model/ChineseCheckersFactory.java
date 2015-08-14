@@ -50,11 +50,11 @@ public abstract class ChineseCheckersFactory {
         List<ColorType> colorList = savedPlayer.getColorDef();
         ArrayList<Point> targets = player.getTargets();
         ArrayList<Model.Color> colors = player.getColors();
-        
+
         for (int i = 0; i < player.getColors().size(); i++) {
             Model.Color color = colors.get(i);
             Point target = targets.get(i);
-            colorList.add(createSavedGameColorType(color,target));
+            colorList.add(createSavedGameColorType(color, target));
         }
 
         return savedPlayer;
@@ -85,22 +85,22 @@ public abstract class ChineseCheckersFactory {
         return res;
     }
 
-    private static ColorType createSavedGameColorType(Model.Color color , Point target) {
+    private static ColorType createSavedGameColorType(Model.Color color, Point target) {
         ColorType savedColor = new ColorType();
         savedColor.setTarget(createSavedGameTarget(target));
         savedColor.setColor(createSavedColorFromColor(color));
 
         return savedColor;
     }
-    
+
     private static Target createSavedGameTarget(Point target) {
         Target savedGameTarget = new Target();
-        
+
         savedGameTarget.setCol(target.y);//TODO
         savedGameTarget.setRow(target.x);//TODO
         return savedGameTarget;
     }
-    
+
     private static PlayerType createSavedGameType(Type type) {
         if (type == Player.Type.COMPUTER) {
             return PlayerType.COMPUTER;

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<chinese_checkers current_player="1">
+<chinese_checkers current_player="asd">
     <players>
-        <player type="HUMAN" name="1">
+        <player type="HUMAN" name="asd">
             <colorDef color="GREEN">
                 <target row="17" col="1"/>
             </colorDef>
@@ -9,7 +9,7 @@
                 <target row="13" col="1"/>
             </colorDef>
         </player>
-        <player type="HUMAN" name="2">
+        <player type="COMPUTER" name="AI0">
             <colorDef color="YELLOW">
                 <target row="1" col="1"/>
             </colorDef>

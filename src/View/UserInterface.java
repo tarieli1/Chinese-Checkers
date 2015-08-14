@@ -1,6 +1,6 @@
 package View;
 
-import Controller.gameOption;
+import Controller.GameOption;
 import Model.Board;
 import static Model.Board.COLS;
 import static Model.Board.ROWS;
@@ -13,22 +13,26 @@ import java.util.Scanner;
 public class UserInterface {
 
     private final Scanner scanner = new Scanner(System.in);
+    private final static int NUM_OF_POINTS_IN_ROW = 5;
 
-    public gameOption getGameOption() {
+    public int getGameOption() {
+
         System.out.println("Pick your option:");
-        gameOption[] gameOpt = gameOption.values();
+        GameOption[] gameOpt = GameOption.values();
 
         for (int i = 0; i < gameOpt.length; i++) {
-            System.out.println(i + "." + gameOpt[i].name());
+            System.out.println(i + 1 + "." + gameOpt[i].name());
         }
 
-        return gameOpt[getValidChoice(gameOpt.length)];
+        checkIntValidation();
+
+        return scanner.nextInt();
     }
 
     public Point getStartPoint(Player curPlayer, ArrayList<Point> playerP) {
         greet(curPlayer);
         showPossiblePointsToPick(playerP);
-        
+
         return getPointFromUser();
     }
 
@@ -46,7 +50,7 @@ public class UserInterface {
     public void showPossiblePointsToPick(ArrayList<Point> playerPoints) {
         System.out.println("Your possible points to pick are:");
         for (int i = 0; i < playerPoints.size(); i++) {
-            if (i % 5 == 0) {
+            if (i % NUM_OF_POINTS_IN_ROW == 0) {
                 System.out.println("");
             }
             System.out.format("{%s,%s},", playerPoints.get(i).x, playerPoints.get(i).y);
@@ -55,10 +59,9 @@ public class UserInterface {
     }
 
     public int getTotalPlayers() {
-        boolean isValid = false;
         System.out.println("Enter the number of players 2-6");
 
-        checkIntValidation(isValid);
+        checkIntValidation();
         return scanner.nextInt();
     }
 
@@ -78,29 +81,26 @@ public class UserInterface {
     }
 
     public int isUserWannaQuit(String playerName) {
-        boolean isValid = false;
 
         printPlayerChoices(playerName);
-        checkIntValidation(isValid);
+        checkIntValidation();
 
         return scanner.nextInt();
     }
 
     public int getColorNumberForEach(int totalPlayers, int howManyColorsForEach) {
-        boolean isValid = false;
 
         System.out.println("Each user can pick up to " + howManyColorsForEach + " colors");
         System.out.println("Enter number of colors each player want to use");
-        checkIntValidation(isValid);
+        checkIntValidation();
 
         return scanner.nextInt();
     }
 
     public int getHumanPlayers(int totalPlayers) {
-        boolean isValid = false;
 
         System.out.format("Enter the number of human players 0-%d%n", totalPlayers);
-        checkIntValidation(isValid);
+        checkIntValidation();
 
         return scanner.nextInt();
     }
@@ -127,26 +127,23 @@ public class UserInterface {
 
     private Point getPointFromUser() {
         int rowNum = 0, colNum = 0;
-        rowNum = getRowNumFromUser(rowNum);
-        colNum = getColNumFromUser(colNum);
+        rowNum = getRowNumFromUser();
+        colNum = getColNumFromUser();
 
         return new Point(rowNum, colNum);
     }
 
-    private int getColNumFromUser(int colNum) {
-        boolean isValid = false;
+    private int getColNumFromUser() {
 
         System.out.println("Enter col number: ");
-        checkIntValidation(isValid);
+        checkIntValidation();
 
         return scanner.nextInt();
     }
 
-    private int getRowNumFromUser(int rowNum) {
-        boolean isValid = false;
-
+    private int getRowNumFromUser() {
         System.out.println("Enter row number: ");
-        checkIntValidation(isValid);
+        checkIntValidation();
 
         return scanner.nextInt();
     }
@@ -238,19 +235,9 @@ public class UserInterface {
         System.out.println("3. Quit");
     }
 
-    private int getValidChoice(int gameOptLength) {
-        int userChoice = -1;
+    private void checkIntValidation() {
+        boolean isValid = false;
 
-        do {
-            if (scanner.hasNextInt()) {
-                userChoice = scanner.nextInt();
-            }
-        } while (userChoice < 0 && userChoice > gameOptLength);
-
-        return userChoice;
-    }
-
-    private void checkIntValidation(boolean isValid) {
         while (!isValid) {
             if (scanner.hasNextInt()) {
                 isValid = true;
@@ -262,10 +249,8 @@ public class UserInterface {
     }
 
     public int checkIfUserWantToSaveAsOrJustSave() {
-        boolean isValid = false;
-
         showUserSaveOptions();
-        checkIntValidation(isValid);
+        checkIntValidation();
 
         return scanner.nextInt();
     }
@@ -288,10 +273,9 @@ public class UserInterface {
     }
 
     public int checkIfUserWantToLoadGameOrPlayNewGame() {
-        boolean isValid = false;
 
         showUserStartGameOptions();
-        checkIntValidation(isValid);
+        checkIntValidation();
 
         return scanner.nextInt();
     }
@@ -310,10 +294,11 @@ public class UserInterface {
     public void printInvalidPoint(Point start) {
         System.out.format("The Marble: (%d,%d) is not yours", start.x, start.y);
     }
-    
+
     public void printWinnerGame(String winnerName) {
-        for (int i = 0; i < 10; i++)
+        for (int i = 0; i < 10; i++) {
             System.out.println("");
+        }
         System.out.println("WOOOOHHHHOOOO " + winnerName + " YOU WON THE GAME!!!");
         System.out.println("CONGRATULATIONS!!!!");
     }

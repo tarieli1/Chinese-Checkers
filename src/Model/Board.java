@@ -3,38 +3,37 @@ package Model;
 import java.awt.Point;
 import java.util.*;
 
- public class Board {
+public class Board {
+
     public static final int COLS = 25;
     public static final int ROWS = 17;
     private static final char EMPTY = 'E';
     private static final char END = ' ';
-    
+
     private final Cell[][] board;
-    
-    public Color getColorByPoint(Point point){
+
+    public Color getColorByPoint(Point point) {
         return board[point.x][point.y].color;
     }
-    
-    public void setColorByPoint(Point point , Color color){
+
+    public void setColorByPoint(Point point, Color color) {
         board[point.x][point.y].color = color;
     }
-            
-    public Board(){
-       board = createFullBoard();   
+
+    public Board() {
+        board = createFullBoard();
     }
 
     private Cell[][] createFullBoard() {
         Cell[][] fullBoard = null;
-        try{
-           ArrayList<String> boardLines =  FileManager.readLinesFromFile("src/Resources/boardTemplate.txt");
-           fullBoard = createBoardFromLines(boardLines);
-        }
-        catch(Exception e)
-        {
+        try {
+            ArrayList<String> boardLines = FileManager.readLinesFromFile("src/Resources/boardTemplate.txt");
+            fullBoard = createBoardFromLines(boardLines);
+        } catch (Exception e) {
             System.out.println(e.getMessage());
         }
         return fullBoard;
-      
+
     }
 
     private Cell[][] createBoardFromLines(ArrayList<String> boardLines) {
@@ -64,19 +63,23 @@ import java.util.*;
 
     private void removeColorFromBoard(int i, int j, ArrayList<Color> colorsToRemove) {
         Color color = getColorByPoint(new Point(i, j));
-        if(colorsToRemove.contains(color))
+        if (colorsToRemove.contains(color)) {
             board[i][j].color = Color.EMPTY;
+        }
     }
 
     void makeEmpty() {
-        for (int i = 0; i < ROWS; i++) 
-            for (int j = 0; j < COLS; j++) 
-                if (board[i][j].color != Color.TRANSPARENT) 
+        for (int i = 0; i < ROWS; i++) {
+            for (int j = 0; j < COLS; j++) {
+                if (board[i][j].color != Color.TRANSPARENT) {
                     board[i][j].color = Color.EMPTY;
+                }
+            }
+        }
     }
 
-     private static class Cell {
-        
+    private static class Cell {
+
         private Color color;
 
         private Cell(int charValue) {
@@ -85,8 +88,7 @@ import java.util.*;
 
         private Color getColorByChar(int charValue) {
             Color myColor = null;
-            switch(charValue)
-            {
+            switch (charValue) {
                 case 'G':
                     myColor = Color.GREEN;
                     break;
@@ -111,7 +113,7 @@ import java.util.*;
                 case END:
                     myColor = Color.TRANSPARENT;
             }
-         return myColor;   
+            return myColor;
         }
 
     }

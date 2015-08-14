@@ -12,7 +12,10 @@ public class Player {
     private final ArrayList<Point> targets = new ArrayList<>();
     private final ArrayList<Point> points = new ArrayList<>();
     private HashMap<Point, ArrayList<Point>> possibleMoves;
+    private boolean isFinish = false;
 
+
+    
     public Player(String name, Type type) {
         this.name = name;
         this.type = type;
@@ -47,9 +50,18 @@ public class Player {
         return targets;
     }
 
+    public boolean isFinish() {
+        return isFinish;
+    }
+
+    public void setIsFinish(boolean isFinish) {
+        this.isFinish = isFinish;
+    }
+    
+
     public enum Type {
 
-        Player,
+        PLAYER,
         COMPUTER
     }
 }
